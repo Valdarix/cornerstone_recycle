@@ -86,10 +86,16 @@ local function pickRandomLocation()
 end
 
 local function ProcessDropoff()
-  -- Process Dropoff 
+  -- Process Dropoff   
   isCarryingPackage = false
   currentPackage = nil
   locationSet = false
+  if onDuty and not locationSet then    
+    if not isCarryingPackage then      
+      pickRandomLocation()
+    end
+   
+  end
   doNotifyClient(5000, 'Recycle Center', 'You have sorted this load!', 'success')
 end
 
@@ -214,10 +220,17 @@ local function ToggleDuty()
   if onDuty then   
     onDuty = false
     exports.ox_target:removeZone('recycle_center_pickup')
+    
     TriggerServerEvent('cornerstone_recycle:server:toggleDuty', false)
     doNotifyClient(5000, 'Recycle Center', 'You are now off duty', 'success')
   else    
     onDuty = true
+    if onDuty and not locationSet then    
+      if not isCarryingPackage then      
+        pickRandomLocation()
+      end
+     
+    end
     doNotifyClient(5000, 'Recycle Center', 'You are now on duty', 'success')
     TriggerServerEvent('cornerstone_recycle:server:toggleDuty', true)
   end
@@ -354,14 +367,5 @@ end
 Citizen.CreateThread(function()     
   CreateBlip()
   SetupRecycleCenter()
-  SetupContextMenu()
-  while true do
-   if onDuty and not locationSet then    
-     if not isCarryingPackage then      
-       pickRandomLocation()
-     end
-    
-   end
-   Wait(500)
-  end     
+  SetupContextMenu() 
 end)
