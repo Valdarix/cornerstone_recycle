@@ -5,12 +5,14 @@ if Config.Framework == 'nd' then ND = exports["ND_Core"] end
 
 local recycleCenter = Config.RecycleCenter
 local ped = recycleCenter.Ped
-local pickLocations = recycleCenter.Locations
+local pickLocations = recycleCenter.PickupModels
 
 local blip = nil
 local onDuty = false
 
 local managerPed = nil
+
+local dropOffObj = nil
 
 local function CleanUpWarehouse()
   -- Cleanup
@@ -19,13 +21,58 @@ local function CleanUpWarehouse()
       exports.ox_target:removeZone('recycle_center_exit')
       exports.ox_target:removeZone('recycle_center_laptop')
       exports.ox_target:removeZone('recycle_center_managerPed')
+      exports.ox_target:removeZone('recycle_center_dropoff')
     end
   end
 
   if managerPed ~= nil and DoesEntityExist(managerPed) then
-    DeleteEntity(managerPed)
+    DeleteEntity(managerPed)    
   end
 
+  if dropOffObj ~= nil and DoesEntityExist(dropOffObj) then
+    DeleteEntity(dropOffObj)
+  end
+
+end
+
+local function ProcessDropoff()
+  -- Process Dropoff
+  doNotifyClient(5000, 'Recycle Center', 'You have dropped off your items', 'success')
+end
+
+local function SetupDropoffLocation()
+  local dropoffLocation = recycleCenter.DropOff.location
+  LoadModel(recycleCenter.DropOff.model)
+  
+  dropOffObj = CreateObject(recycleCenter.DropOff.model, dropoffLocation.x, dropoffLocation.y, dropoffLocation.z, false, true, true)
+  SetEntityHeading(dropOffObj, dropoffLocation.w)
+  PlaceObjectOnGroundProperly(dropOffObj)
+  FreezeEntityPosition(dropOffObj, true)
+
+ if Config.UseTarget then
+  if Config.Target == 'ox' then
+    local parameters = {
+      coords = { dropoffLocation.x, dropoffLocation.y, dropoffLocation.z + 1.0 },
+      name = 'recycle_center_dropoff',
+      heading = dropoffLocation.w,
+      debug = Config.Debug,
+      minZ = dropoffLocation.z,
+      maxZ = dropoffLocation.z + 1.0,
+      options = {
+        {
+          onSelect = function()
+            ProcessDropoff()
+          end,
+          icon = 'fas fa-recycle',
+          label = 'Sort Recycling',
+          distance = 2.0,
+        },
+      },
+    }
+    exports.ox_target:addBoxZone(parameters)
+  end
+end
+  
 end
 
 local function SetupPickLocations()
@@ -89,6 +136,8 @@ end
 
 local function ExitWarehouse()
   DebugPrint('Exit Recycling Center')
+  onDuty = lib.callback.await('cornerstone_recycle:server:getDutyState')
+  DebugPrint('Player is on duty: ' .. tostring(onDuty))
   if not onDuty then
     local playerPed = PlayerPedId()
     DoScreenFadeOut(1000)
@@ -106,12 +155,10 @@ local function ExitWarehouse()
 end
 
 local function ToggleDuty()
-  if onDuty then
-    onDuty = false
+  if onDuty then   
     TriggerServerEvent('cornerstone_recycle:server:toggleDuty', false)
     doNotifyClient(5000, 'Recycle Center', 'You are now off duty', 'success')
-  else
-    onDuty = true
+  else    
     doNotifyClient(5000, 'Recycle Center', 'You are now on duty', 'success')
     TriggerServerEvent('cornerstone_recycle:server:toggleDuty', true)
   end
@@ -172,22 +219,22 @@ end
 local function SetupPed()
   LoadModel(ped.Model)  
   
-  managerPed = CreatePed(0, ped.Model, ped.Location.x, ped.Location.y, ped.Location.z - 1, ped.Location.w, false, false)
+  managerPed = CreatePed(0, ped.Model, ped.location.x, ped.location.y, ped.location.z - 1, ped.location.w, false, false)
 
   SetEntityAsMissionEntity(managerPed, true, true)
   SetBlockingOfNonTemporaryEvents(managerPed, true)
   FreezeEntityPosition(managerPed, true)
   SetEntityInvincible(managerPed, true)
-  SetEntityHeading(managerPed, ped.Location.w)
+  SetEntityHeading(managerPed, ped.location.w)
   if Config.UseTarget then
     if Config.Target == 'ox' then
       local parameters = {
-        coords = { ped.Location.x, ped.Location.y, ped.Location.z - 1.0 },
+        coords = { ped.location.x, ped.location.y, ped.location.z - 1.0 },
         name = 'recycle_center_managerPed',
-        heading = ped.Location.w,
+        heading = ped.location.w,
         debug = Config.Debug,
-        minZ = ped.Location.z,
-        maxZ = ped.Location.z - 2.0,
+        minZ = ped.location.z,
+        maxZ = ped.location.z - 2.0,
         options = {
           {
             onSelect = function()
@@ -216,6 +263,7 @@ local function EnterWarehouse()
   SetupLaptop()
   SetupPed()
   SetupPickLocations()
+  SetupDropoffLocation()
 
   Citizen.Wait(1000)
   DoScreenFadeIn(1000)

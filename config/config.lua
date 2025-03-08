@@ -17,17 +17,24 @@ Config.OxCirclePosition = 'bottom' -- only matters if Config.Progress = 'ox-circ
 Config.RecycleCenter = {
     Enter = vec4(-572.05, -1631.29, 19.41, 181.47),
     Exit = vec4(1027.61, -3101.39, -39.0, 89.26),
-    DropOff = vec4(999.23, -3093.19, -38.75, 168.93),
+    DropOff = {
+        model = 'prop_recyclebin_05_a', 
+        location = vec4(994.28, -3106.45, -40.00, 89.45)},       
     Ped = {
         Model = 's_m_m_gentransport',
-        Location = vec4(993.86, -3103.04, -39.0, 1.69),
+        location = vec4(993.86, -3103.04, -39.0, 1.69),
     },
-    DutyLocation = vec4(995.18, -3099.99, -38.18, 8.18),
-    Locations = {
-        vec4(0, 0, 0, 0.0),
-    },
+    DutyLocation = vec4(995.18, -3099.99, -38.18, 8.18),    
     PickupModels = {
-        'prop_recyclebin_05_a',
+        { name = 'prop_recyclebin_05_a', location = vec4(1018.16, -3101.83, -40.00, 179.74) },
+        { name = 'prop_recyclebin_04_a', location = vec4(1018.21, -3101.84, -40.00, 179.51) },
+        { name = 'prop_recyclebin_04_b', location = vec4(1018.21, -3101.84, -40.00, 179.51) },
+        { name = 'prop_recyclebin_04_a', location = vec4(1018.21, -3101.84, -40.00, 179.51) },
+        { name = 'prop_recyclebin_04_b', location = vec4(1018.21, -3101.84, -40.00, 179.51) },
+        { name = 'prop_recyclebin_04_a', location = vec4(1018.21, -3101.84, -40.00, 179.51) },
+        { name = 'prop_recyclebin_04_b', location = vec4(1018.21, -3101.84, -40.00, 179.51) },
+        { name = 'prop_recyclebin_04_a', location = vec4(1018.21, -3101.84, -40.00, 179.51) },
+        { name = 'prop_recyclebin_04_b', location = vec4(1018.21, -3101.84, -40.00, 179.51) },
         'prop_recyclebin_04_b',
         'prop_recyclebin_04_a',
         'prop_recyclebin_04_a',

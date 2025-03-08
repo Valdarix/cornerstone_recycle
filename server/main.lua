@@ -34,8 +34,8 @@ end
 exports('distanceCheck', distanceCheck)
 
 
-lib.callback.register('nameOFscript:server:nameOFwhathappens', function(source)
-  return true
+lib.callback.register('cornerstone_recycle:server:getDutyState', function(source)
+  return onDuty
 end)
 
 RegisterNetEvent('cornerstone_recycle:server:toggleDuty', function (dutyState)
