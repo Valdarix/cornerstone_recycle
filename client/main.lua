@@ -79,9 +79,14 @@ local function ExitWarehouse()
     DoScreenFadeIn(1000)
 
     -- Cleanup
-    exports.ox_target:removeZone('recycle_center_exit')  
-    exports.ox_target:removeZone('recycle_center_laptop')
-    exports.ox_target:removeZone('recycle_center_managerPed')
+    if Config.UseTarget then
+      if Config.Target == 'ox' then
+        exports.ox_target:removeZone('recycle_center_exit')  
+        exports.ox_target:removeZone('recycle_center_laptop')
+        exports.ox_target:removeZone('recycle_center_managerPed')
+      end
+    end
+   
     if managerPed ~= nil and DoesEntityExist(managerPed) then
       DeleteEntity(managerPed)
     end
@@ -104,30 +109,35 @@ local function ToggleDuty()
 end
 
 local function SetupLaptop()
-    local parameters = {
-      coords = { recycleCenter.DutyLocation.x, recycleCenter.DutyLocation.y, recycleCenter.DutyLocation.z - 1.0 },
-      name = 'recycle_center_laptop',
-      heading = recycleCenter.DutyLocation.w,
-      debug = Config.Debug,
-      minZ = recycleCenter.DutyLocation.z,
-      maxZ = recycleCenter.DutyLocation.z - 2.0,
-      options = {
-          {
-              onSelect = function ()
-                ToggleDuty()
-              end,
-              icon = 'fas fa-recycle',
-              label = 'Toggle Duty',                
-              distance = 1.0,
-          },
-      },
-  }
-  exports.ox_target:addBoxZone(parameters)  
-
+  if Config.UseTarget then
+    if Config.Target == 'ox' then
+      local parameters = {
+        coords = { recycleCenter.DutyLocation.x, recycleCenter.DutyLocation.y, recycleCenter.DutyLocation.z - 1.0 },
+        name = 'recycle_center_laptop',
+        heading = recycleCenter.DutyLocation.w,
+        debug = Config.Debug,
+        minZ = recycleCenter.DutyLocation.z,
+        maxZ = recycleCenter.DutyLocation.z - 2.0,
+        options = {
+            {
+                onSelect = function ()
+                  ToggleDuty()
+                end,
+                icon = 'fas fa-recycle',
+                label = 'Toggle Duty',                
+                distance = 1.0,
+            },
+        },
+    }
+      exports.ox_target:addBoxZone(parameters)  
+    end
+  end
 
 end
 
 local function SetupInterior()    
+  if Config.UseTarget then
+    if Config.Target == 'ox' then
     local parameters = {
       coords = recycleCenter.Exit.xyz,
       name = 'recycle_center_exit',
@@ -146,7 +156,9 @@ local function SetupInterior()
           },
       },
   }
-  exports.ox_target:addBoxZone(parameters)   
+  exports.ox_target:addBoxZone(parameters)
+end
+end 
 
 end
 
@@ -158,7 +170,8 @@ local function SetupPed()
   FreezeEntityPosition(managerPed, true)
   SetEntityInvincible(managerPed, true)
   SetEntityHeading(managerPed, ped.Location.w)
-
+  if Config.UseTarget then
+    if Config.Target == 'ox' then
   local parameters = {
     coords = { ped.Location.x, ped.Location.y, ped.Location.z - 1.0 },
     name = 'recycle_center_managerPed',
@@ -178,6 +191,8 @@ local function SetupPed()
     },
 }
 exports.ox_target:addBoxZone(parameters)  
+end
+end
 
   
 end

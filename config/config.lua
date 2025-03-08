@@ -16,7 +16,7 @@ Config.OxCirclePosition = 'bottom' -- only matters if Config.Progress = 'ox-circ
 
 Config.RecycleCenter = {
     Enter = vec4(-572.05, -1631.29, 19.41, 181.47),
-    Exit = vec4(992.33, -3097.82, -39.0, 267.84),
+    Exit = vec4(1027.61, -3101.39, -39.0, 89.26),
     DropOff = vec4(999.23, -3093.19, -38.75, 168.93),
     Ped = {
         Model = 's_m_m_postal_02',
