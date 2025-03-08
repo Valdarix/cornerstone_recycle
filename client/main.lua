@@ -11,8 +11,10 @@ local blip = nil
 local onDuty = false
 
 local managerPed = nil
-
 local dropOffObj = nil
+
+local isCarryingPackage = false
+local currentPackage = nil
 
 local function CleanUpWarehouse()
   -- Cleanup
@@ -61,7 +63,13 @@ local function SetupDropoffLocation()
       options = {
         {
           onSelect = function()
-            ProcessDropoff()
+            if isCarryingPackage then
+              if currentPackage ~= nil then
+                ProcessDropoff()
+              end
+            else
+              doNotifyClient(5000, 'Recycle Center', 'You do not have anything to sort!', 'error')
+            end
           end,
           icon = 'fas fa-recycle',
           label = 'Sort Recycling',
