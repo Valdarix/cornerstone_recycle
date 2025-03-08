@@ -5,7 +5,7 @@ if Config.Framework == 'esx' then ESX = exports["es_extended"]:getSharedObject()
 ---@param title string # noti title can be empty string for qb
 ---@param desc string # noti desc
 ---@param type string # success or error
-local function doNotify(duration, title, desc, type)
+function doNotifyClient(duration, title, desc, type)
   if Config.Notification == 'qb' then
     QBCore.Functions.Notify(title .. ": " .. desc, type, duration)
   elseif Config.Notification == 'esx' then
@@ -25,7 +25,7 @@ local function doNotify(duration, title, desc, type)
     elseif type == 'information' then
       xsType = 3
     end
-    TriggerEvent("xs:notify", title, desc, duration, xsType, Config.XSLocation, 'server')
+    TriggerEvent("xs:notify", title, desc, duration, xsType, Config.XSNotifyLocation, 'server')
   else
     lib.notify({
       title = title,
@@ -35,4 +35,4 @@ local function doNotify(duration, title, desc, type)
     })
   end
 end
-exports('doNotify', doNotify)
+exports('doNotifyClient', doNotifyClient)

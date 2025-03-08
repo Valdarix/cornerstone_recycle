@@ -23,7 +23,7 @@ function doNotify(src, duration, title, desc, type)
     elseif type == 'information' then
       xsType = 3
     end
-    TriggerClientEvent("xs:notify", src, title, desc, duration, xsType, Config.XSLocation, 'server')    
+    TriggerClientEvent("xs:notify", src, title, desc, duration, xsType, Config.XSNotifyLocation, 'server')    
   else
     TriggerClientEvent('ox_lib:notify', src, {
       title = title,

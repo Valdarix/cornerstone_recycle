@@ -3,6 +3,8 @@ if Config.Framework == 'qbx' then QBX = exports.qbx_core end
 if Config.Framework == 'esx' then ESX = exports["es_extended"]:getSharedObject() end
 if Config.Framework == 'nd' then ND = exports["ND_Core"] end
 
+local rewardItems = Config.RecycleCenter.Rewards
+
 ---@param orgin string # orgin where this is being called
 ---@param playerId number # center of check
 ---@param faildDist number # how bad they failed the check
