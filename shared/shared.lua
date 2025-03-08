@@ -31,10 +31,10 @@ function DetectCore()
         end
     end
 
-    DebugPrint('Framework found: ' .. Config.Framework)
-    DebugPrint('Notifications: ' .. Config.Notification)
-    DebugPrint('Inventory: ' .. Config.Inventory)
-    DebugPrint('Progress: ' .. Config.Progress)
+    DebugPrint('Corenerstone Recyling Started with for the : ' .. Config.Framework .. ' framework')
+    DebugPrint('++ Notifications: ' .. Config.Notification)
+    DebugPrint('++ Inventory: ' .. Config.Inventory)
+    DebugPrint('++ Progress: ' .. Config.Progress)
 end
 
 AddEventHandler('onResourceStart', function(resource)

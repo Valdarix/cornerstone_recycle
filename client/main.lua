@@ -16,6 +16,7 @@ local dropOffObj = nil
 
 local isCarryingPackage = false
 local currentPackage = nil
+local locationSet = false
 
 
 local function CleanUpWarehouse()
@@ -25,7 +26,8 @@ local function CleanUpWarehouse()
       exports.ox_target:removeZone('recycle_center_exit')
       exports.ox_target:removeZone('recycle_center_laptop')
       exports.ox_target:removeZone('recycle_center_managerPed')
-      exports.ox_target:removeZone('recycle_center_dropoff')
+      exports.ox_target:removeZone('recycle_center_dropoff')      
+      
     end
   end
 
@@ -48,12 +50,47 @@ end
 
 local function pickRandomLocation()
   local randomLocation = pickLocations[math.random(#pickLocations)]
-  return randomLocation
+  DebugPrint('Picking up location: ' .. randomLocation.name)
+  if Config.UseTarget then
+    if Config.Target == 'ox' then
+      local parameters = {
+        coords = { randomLocation.location.x, randomLocation.location.y, randomLocation.location.z + 1.0 },
+        name = 'recycle_center_pickup',
+        heading = randomLocation.location.w,
+        debug = Config.Debug,
+        minZ = randomLocation.location.z,
+        maxZ = randomLocation.location.z + 1.0,
+        options = {
+          {
+            onSelect = function()
+              if not isCarryingPackage then
+                isCarryingPackage = true
+                currentPackage = randomLocation
+                doNotifyClient(5000, 'Recycle Center', 'You have picked up a load!', 'success')
+                exports.ox_target:removeZone('recycle_center_pickup')
+              else
+                doNotifyClient(5000, 'Recycle Center', 'You are already carrying a load!', 'error')
+              end
+            end,
+            icon = 'fas fa-hand',
+            label = 'Pickup Recycling',
+            distance = 2.0,
+          },
+        },
+      }
+      exports.ox_target:addBoxZone(parameters)
+      DebugPrint('Added pickup location')
+    end
+  end
+  locationSet = true
 end
 
 local function ProcessDropoff()
-  -- Process Dropoff
-  doNotifyClient(5000, 'Recycle Center', 'You have dropped off your items', 'success')
+  -- Process Dropoff 
+  isCarryingPackage = false
+  currentPackage = nil
+  locationSet = false
+  doNotifyClient(5000, 'Recycle Center', 'You have sorted this load!', 'success')
 end
 
 local function SetupDropoffLocation()
@@ -135,19 +172,9 @@ local function SetupContextMenu()
   })
 end
 
-RegisterNetEvent('nameOFscript:client:nameOFwhathappens', function()
-  -- Templete netevent
-end)
-
-AddEventHandler('onResourceStart', function(resourceName)
-  if (GetCurrentResourceName() ~= resourceName) then return end
-
-  -- code here
-end)
-
 AddEventHandler('onResourceStop', function(resourceName)
   if (GetCurrentResourceName() ~= resourceName) then return end
-  CleanUpWarehouse()
+    CleanUpWarehouse()
 
 end)
 
@@ -185,9 +212,12 @@ end
 
 local function ToggleDuty()
   if onDuty then   
+    onDuty = false
+    exports.ox_target:removeZone('recycle_center_pickup')
     TriggerServerEvent('cornerstone_recycle:server:toggleDuty', false)
     doNotifyClient(5000, 'Recycle Center', 'You are now off duty', 'success')
   else    
+    onDuty = true
     doNotifyClient(5000, 'Recycle Center', 'You are now on duty', 'success')
     TriggerServerEvent('cornerstone_recycle:server:toggleDuty', true)
   end
@@ -210,7 +240,7 @@ local function SetupLaptop()
             end,
             icon = 'fas fa-recycle',
             label = 'Toggle Duty',
-            distance = 1.0,
+            distance = 1.5,
           },
         },
       }
@@ -321,17 +351,17 @@ local function SetupRecycleCenter()
   exports.ox_target:addBoxZone(parameters)
 end
 
-Citizen.CreateThread(function() -- Start Thread (Non Loop)
+Citizen.CreateThread(function()     
   CreateBlip()
   SetupRecycleCenter()
   SetupContextMenu()
-end)
-
-Citizen.CreateThread(function() -- Start Thread (Loop) (Uncomment if going to use it)
-     while onDuty do
-      if not isCarryingPackage then
-        pickRandomLocation()
-      end
-      Wait(10)
+  while true do
+   if onDuty and not locationSet then    
+     if not isCarryingPackage then      
+       pickRandomLocation()
      end
+    
+   end
+   Wait(500)
+  end     
 end)
