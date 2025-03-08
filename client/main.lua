@@ -6,6 +6,7 @@ if Config.Framework == 'nd' then ND = exports["ND_Core"] end
 local recycleCenter = Config.RecycleCenter
 local ped = recycleCenter.Ped
 local pickLocations = recycleCenter.PickupModels
+local pickupObjects = {}
 
 local blip = nil
 local onDuty = false
@@ -15,6 +16,7 @@ local dropOffObj = nil
 
 local isCarryingPackage = false
 local currentPackage = nil
+
 
 local function CleanUpWarehouse()
   -- Cleanup
@@ -34,7 +36,19 @@ local function CleanUpWarehouse()
   if dropOffObj ~= nil and DoesEntityExist(dropOffObj) then
     DeleteEntity(dropOffObj)
   end
+  if pickupObjects ~= nil then
+    for k, v in pairs(pickupObjects) do
+      if DoesEntityExist(v) then
+        DeleteEntity(v)
+      end
+    end
+  end
+  DebugPrint('Cleaned up warehouse')
+end
 
+local function pickRandomLocation()
+  local randomLocation = pickLocations[math.random(#pickLocations)]
+  return randomLocation
 end
 
 local function ProcessDropoff()
@@ -84,7 +98,14 @@ end
 end
 
 local function SetupPickLocations()
- 
+  for k, v in pairs(pickLocations) do
+    LoadModel(v.name)
+    local obj = CreateObject(v.name, v.location.x, v.location.y, v.location.z, false, true, true)
+    table.insert(pickupObjects, obj)
+    SetEntityHeading(obj, v.location.w)
+    PlaceObjectOnGroundProperly(obj)
+    FreezeEntityPosition(obj, true)
+  end
 end
 
 local function SetupContextMenu()
@@ -277,7 +298,6 @@ local function EnterWarehouse()
   DoScreenFadeIn(1000)
 end
 
-
 -- Create Function to setup the recycle center using ox target and CreateBoxZone
 local function SetupRecycleCenter()
   local parameters = {
@@ -301,16 +321,17 @@ local function SetupRecycleCenter()
   exports.ox_target:addBoxZone(parameters)
 end
 
-
 Citizen.CreateThread(function() -- Start Thread (Non Loop)
   CreateBlip()
   SetupRecycleCenter()
   SetupContextMenu()
 end)
 
-
--- Citizen.CreateThread(function() -- Start Thread (Loop) (Uncomment if going to use it)
---     while true do
---         Wait(10)
---     end
--- end)
+Citizen.CreateThread(function() -- Start Thread (Loop) (Uncomment if going to use it)
+     while onDuty do
+      if not isCarryingPackage then
+        pickRandomLocation()
+      end
+      Wait(10)
+     end
+end)
