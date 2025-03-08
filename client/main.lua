@@ -92,7 +92,7 @@ local function ExitWarehouse()
       DeleteEntity(managerPed)
     end
   else
-    exports('doNotify', doNotify)(5000, 'Recycle Center', 'You must go off duty first', 'error')
+    doNotifyClient(5000, 'Recycle Center', 'You must go off duty first', 'error')
   end
 end
 
