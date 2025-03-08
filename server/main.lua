@@ -4,6 +4,7 @@ if Config.Framework == 'esx' then ESX = exports["es_extended"]:getSharedObject()
 if Config.Framework == 'nd' then ND = exports["ND_Core"] end
 
 local rewardItems = Config.RecycleCenter.Rewards
+local onDuty = false
 
 ---@param orgin string # orgin where this is being called
 ---@param playerId number # center of check
@@ -37,8 +38,14 @@ lib.callback.register('nameOFscript:server:nameOFwhathappens', function(source)
   return true
 end)
 
-RegisterNetEvent('nameOFscript:server:nameOFwhathappens', function ()
-  -- Templete netevent
+RegisterNetEvent('cornerstone_recycle:server:toggleDuty', function (dutyState)
+  if dutyState then
+    onDuty = true
+    DebugPrint('Player is now on duty')
+  else
+    onDuty = false
+    DebugPrint('Player is now off duty')
+  end
 end)
 
 

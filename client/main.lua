@@ -12,6 +12,26 @@ local onDuty = false
 
 local managerPed = nil
 
+local function CleanUpWarehouse()
+  -- Cleanup
+  if Config.UseTarget then
+    if Config.Target == 'ox' then
+      exports.ox_target:removeZone('recycle_center_exit')
+      exports.ox_target:removeZone('recycle_center_laptop')
+      exports.ox_target:removeZone('recycle_center_managerPed')
+    end
+  end
+
+  if managerPed ~= nil and DoesEntityExist(managerPed) then
+    DeleteEntity(managerPed)
+  end
+
+end
+
+local function SetupPickLocations()
+ 
+end
+
 local function SetupContextMenu()
   lib.registerContext({
     id = 'recycle_manger_menu',
@@ -51,8 +71,8 @@ end)
 
 AddEventHandler('onResourceStop', function(resourceName)
   if (GetCurrentResourceName() ~= resourceName) then return end
+  CleanUpWarehouse()
 
-  -- code here
 end)
 
 local function CreateBlip()
@@ -74,23 +94,12 @@ local function ExitWarehouse()
     DoScreenFadeOut(1000)
     Citizen.Wait(1000)
     SetEntityCoords(playerPed, recycleCenter.Enter.x, recycleCenter.Enter.y, recycleCenter.Enter.z, false, false, false,
-      false)
+    false)
     SetEntityHeading(playerPed, recycleCenter.Enter.w)
     Citizen.Wait(1000)
     DoScreenFadeIn(1000)
 
-    -- Cleanup
-    if Config.UseTarget then
-      if Config.Target == 'ox' then
-        exports.ox_target:removeZone('recycle_center_exit')
-        exports.ox_target:removeZone('recycle_center_laptop')
-        exports.ox_target:removeZone('recycle_center_managerPed')
-      end
-    end
-
-    if managerPed ~= nil and DoesEntityExist(managerPed) then
-      DeleteEntity(managerPed)
-    end
+    CleanUpWarehouse()
   else
     doNotifyClient(5000, 'Recycle Center', 'You must go off duty first', 'error')
   end
@@ -99,10 +108,12 @@ end
 local function ToggleDuty()
   if onDuty then
     onDuty = false
+    TriggerServerEvent('cornerstone_recycle:server:toggleDuty', false)
     doNotifyClient(5000, 'Recycle Center', 'You are now off duty', 'success')
   else
     onDuty = true
     doNotifyClient(5000, 'Recycle Center', 'You are now on duty', 'success')
+    TriggerServerEvent('cornerstone_recycle:server:toggleDuty', true)
   end
 end
 
@@ -159,6 +170,8 @@ local function SetupInterior()
 end
 
 local function SetupPed()
+  LoadModel(ped.Model)  
+  
   managerPed = CreatePed(0, ped.Model, ped.Location.x, ped.Location.y, ped.Location.z - 1, ped.Location.w, false, false)
 
   SetEntityAsMissionEntity(managerPed, true, true)
@@ -202,6 +215,7 @@ local function EnterWarehouse()
   SetupInterior()
   SetupLaptop()
   SetupPed()
+  SetupPickLocations()
 
   Citizen.Wait(1000)
   DoScreenFadeIn(1000)
