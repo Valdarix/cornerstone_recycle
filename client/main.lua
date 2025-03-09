@@ -15,7 +15,7 @@ local managerPed = nil
 local dropOffObj = nil
 
 local isCarryingPackage = false
-local currentPackage = nil
+local currentPackage = 0
 local locationSet = false
 local pickupId = 'pikcupLocation'
 
@@ -26,13 +26,13 @@ local function CleanUpWarehouse()
     if Config.Target == 'ox' then
       exports.ox_target:removeZone('recycle_center_exit')
       exports.ox_target:removeZone('recycle_center_laptop')
-      exports.ox_target:removeZone('recycle_center_managerPed')
-      exports.ox_target:removeZone('recycle_center_dropoff')      
+      exports.ox_target:removeLocalEntity(managerPed)
+      exports.ox_target:removeLocalEntity(dropOffObj)
     end
   end
 
   if managerPed ~= nil and DoesEntityExist(managerPed) then
-    DeleteEntity(managerPed)    
+    DeleteEntity(managerPed)
   end
 
   if currentPackage ~= nil and DoesEntityExist(currentPackage) then
@@ -52,75 +52,118 @@ local function CleanUpWarehouse()
   DebugPrint('Cleaned up warehouse')
 end
 
-local function GrabPackage(type, location)
-  DebugPrint('Grabbing package: ' .. type .. ' using animagtion and prop')
-   
-  local model = ''
-  if type == 'prop_recyclebin_04_b' then
-    model = 'prop_cs_cardbox_01'
-  else
-    model = 'p_binbag_01_s'
-  end
-  LoadModel(model)
-  
-  currentPackage = CreateObject(model, location.x, location.y, location.z, false, true, true)
-
-  if type == 'prop_recyclebin_04_b' then
-    local boneIndex = GetPedBoneIndex(cache.ped, 57005)     
-    local offsetX, offsetY, offsetZ = 0.30, -0.07, -0.20  
-    local rotX, rotY, rotZ = -120, 75, -10              
-   
-    -- Request and load the animation dictionary
-    local animDict = 'anim@heists@box_carry@'
-    local animName = 'idle'
-    lib.requestAnimDict(animDict)
-    
-    TaskPlayAnim(PlayerPedId(), animDict, animName, 8.0, -8.0, -1, 49, 0, false, false, false)
-    AttachEntityToEntity(currentPackage, cache.ped, boneIndex, offsetX, offsetY, offsetZ, rotX, rotY, rotZ, true, true, false, true, 1, true)
-  elseif type == 'prop_boxpile_06b' or type == 'prop_boxpile_01a' or type == 'prop_boxpile_04a' then
-    local boneIndex = GetPedBoneIndex(cache.ped, 57005)     
-    local offsetX, offsetY, offsetZ = 0.0, 0.0, 0.0  
-    local rotX, rotY, rotZ = 0, 0, 0              
-   
-    -- Request and load the animation dictionary
-    local animDict = 'anim@heists@narcotics@trash'
-    local animName = 'idle'
-    lib.requestAnimDict(animDict)
-    
-    TaskPlayAnim(PlayerPedId(), animDict, animName, 8.0, -8.0, -1, 49, 0, false, false, false)
-    AttachEntityToEntity(currentPackage, cache.ped, boneIndex, offsetX, offsetY, offsetZ, rotX, rotY, rotZ, true, true, false, true, 1, true)
-  end
-end
-
 local function DropPackage()
   DebugPrint('Dropping package')
-  if currentPackage ~= nil and DoesEntityExist(currentPackage) then     
+  if currentPackage ~= nil and DoesEntityExist(currentPackage) then
     DeleteEntity(currentPackage)
-    currentPackage = nil
+    currentPackage = 0
     ClearPedTasks(cache.ped)
   end
   isCarryingPackage = false
 end
 
+local function ProcessDropoff()
+  -- Process Dropoff
+  if onDuty and isCarryingPackage then
+    DropPackage()   
+    isCarryingPackage = false
+    currentPackage = 0
+    locationSet = false
+  end
+  doNotifyClient(5000, 'Recycle Center', 'You have sorted this load!', 'success')
+end
+
+local function SetupDropoffLocation()
+  local dropoffLocation = recycleCenter.DropOff.location
+  LoadModel(recycleCenter.DropOff.model)
+
+  dropOffObj = CreateObject(recycleCenter.DropOff.model, dropoffLocation.x, dropoffLocation.y, dropoffLocation.z, false,
+    true, true)
+  SetEntityHeading(dropOffObj, dropoffLocation.w)
+  PlaceObjectOnGroundProperly(dropOffObj)
+  FreezeEntityPosition(dropOffObj, true)
+
+  if Config.UseTarget then
+    if Config.Target == 'ox' then
+      exports.ox_target:addLocalEntity(dropOffObj, {
+        {
+          distance = 1.5,
+          name = 'recycle_center_dropoff',
+          icon = 'recycle',
+          label = 'Sort Recycling',
+          onSelect = function()
+            if isCarryingPackage then
+              if currentPackage ~= nil then
+                ProcessDropoff()
+              end
+            else
+              doNotifyClient(5000, 'Recycle Center', 'You do not have anything to sort!', 'error')
+            end
+          end,
+        }
+      })
+    end
+  end
+end
+
+local function GrabPackage(type, location)
+  DebugPrint('Grabbing package: ' .. type .. ' using animagtion and prop')
+
+  local boxModel = 'prop_cs_cardbox_01'
+  local bagModel = 'p_binbag_01_s'
+
+  LoadModel(boxModel)
+  LoadModel(bagModel)
+  local animDict = ''
+  local animName = ''
+  local offsetX, offsetY, offsetZ = 0.0, 0.0, 0.0
+  local rotX, rotY, rotZ = 0, 0, 0
+
+  local boneIndex = GetPedBoneIndex(cache.ped, 57005)
+  if type == 'prop_recyclebin_04_b' then
+    offsetX, offsetY, offsetZ = 0.30, -0.07, -0.20
+    rotX, rotY, rotZ = -120, 75, -10
+    currentPackage = CreateObject(bagModel, location.x, location.y, location.z, false, true, true)
+    -- Request and load the animation dictionary
+    animDict = 'anim@heists@narcotics@trash'
+    animName = 'idle'
+  elseif type == 'prop_boxpile_06b' or type == 'prop_boxpile_01a' or type == 'prop_boxpile_04a' then
+    currentPackage = CreateObject(boxModel, location.x, location.y, location.z, false, true, true)
+    offsetX, offsetY, offsetZ = 0.0, 0.0, 0.0
+    rotX, rotY, rotZ = 0, 0, 0
+
+    -- Request and load the animation dictionary
+    animDict = 'anim@heists@box_carry@'
+    animName = 'idle'
+  end
+  lib.requestAnimDict(animDict)
+
+  TaskPlayAnim(PlayerPedId(), animDict, animName, 8.0, -8.0, -1, 49, 0, false, false, false)
+  AttachEntityToEntity(currentPackage, cache.ped, boneIndex, offsetX, offsetY, offsetZ, rotX, rotY, rotZ, true, true,
+    false, true, 1, true)
+  SetupDropoffLocation()
+end
+
 local function pickRandomLocation()
   local randomLocation = pickLocations[math.random(#pickLocations)]
-  pickupId = pickupId .. randomLocation.name .. randomLocation.location.x .. randomLocation.location.y .. randomLocation.location.z
+  pickupId = pickupId ..
+  randomLocation.name .. randomLocation.location.x .. randomLocation.location.y .. randomLocation.location.z
   DebugPrint('Picking up location: ' .. pickupId)
   if Config.UseTarget then
     if Config.Target == 'ox' then
       local parameters = {
-        coords = { randomLocation.location.x, randomLocation.location.y, randomLocation.location.z + 1.0 },
+        coords = { randomLocation.location.x, randomLocation.location.y, randomLocation.location.z + 0.5 },
+        size = { x = 2.0, y = 2.0, z = 2.0 },
         name = pickupId,
         heading = randomLocation.location.w,
         debug = Config.Debug,
         minZ = randomLocation.location.z,
-        maxZ = randomLocation.location.z + 1.0,
+        maxZ = randomLocation.location.z + 2.0,
         options = {
           {
             onSelect = function()
               if not isCarryingPackage then
                 isCarryingPackage = true
-                currentPackage = randomLocation
                 doNotifyClient(5000, 'Recycle Center', 'You have picked up a load!', 'success')
                 GrabPackage(randomLocation.name, randomLocation.location)
 
@@ -142,58 +185,6 @@ local function pickRandomLocation()
   locationSet = true
 end
 
-local function ProcessDropoff()
-  -- Process Dropoff   
-  if onDuty and isCarryingPackage then      
-      DropPackage()    
-      pickRandomLocation()
-      isCarryingPackage = false
-      currentPackage = nil
-      locationSet = false
-  end  
-  doNotifyClient(5000, 'Recycle Center', 'You have sorted this load!', 'success')
-end
-
-local function SetupDropoffLocation()
-  local dropoffLocation = recycleCenter.DropOff.location
-  LoadModel(recycleCenter.DropOff.model)
-  
-  dropOffObj = CreateObject(recycleCenter.DropOff.model, dropoffLocation.x, dropoffLocation.y, dropoffLocation.z, false, true, true)
-  SetEntityHeading(dropOffObj, dropoffLocation.w)
-  PlaceObjectOnGroundProperly(dropOffObj)
-  FreezeEntityPosition(dropOffObj, true)
-
- if Config.UseTarget then
-  if Config.Target == 'ox' then
-    local parameters = {
-      coords = { dropoffLocation.x, dropoffLocation.y, dropoffLocation.z + 1.0 },
-      name = 'recycle_center_dropoff',
-      heading = dropoffLocation.w,
-      debug = Config.Debug,
-      minZ = dropoffLocation.z,
-      maxZ = dropoffLocation.z + 1.0,
-      options = {
-        {
-          onSelect = function()
-            if isCarryingPackage then
-              if currentPackage ~= nil then
-                ProcessDropoff()
-              end
-            else
-              doNotifyClient(5000, 'Recycle Center', 'You do not have anything to sort!', 'error')
-            end
-          end,
-          icon = 'fas fa-recycle',
-          label = 'Sort Recycling',
-          distance = 2.0,
-        },
-      },
-    }
-    exports.ox_target:addBoxZone(parameters)
-  end
-end
-  
-end
 
 local function SetupPickLocations()
   for k, v in pairs(pickLocations) do
@@ -235,8 +226,7 @@ end
 
 AddEventHandler('onResourceStop', function(resourceName)
   if (GetCurrentResourceName() ~= resourceName) then return end
-    CleanUpWarehouse()
-
+  CleanUpWarehouse()
 end)
 
 local function CreateBlip()
@@ -260,7 +250,7 @@ local function ExitWarehouse()
     DoScreenFadeOut(1000)
     Citizen.Wait(1000)
     SetEntityCoords(playerPed, recycleCenter.Enter.x, recycleCenter.Enter.y, recycleCenter.Enter.z, false, false, false,
-    false)
+      false)
     SetEntityHeading(playerPed, recycleCenter.Enter.w)
     Citizen.Wait(1000)
     DoScreenFadeIn(1000)
@@ -272,23 +262,17 @@ local function ExitWarehouse()
 end
 
 local function ToggleDuty()
-  if onDuty then   
+  if onDuty then
     onDuty = false
     locationSet = false
     isCarryingPackage = false
-    currentPackage = nil
+    currentPackage = 0
     exports.ox_target:removeZone(pickupId)
-    
+
     TriggerServerEvent('cornerstone_recycle:server:toggleDuty', false)
     doNotifyClient(5000, 'Recycle Center', 'You are now off duty', 'success')
-  else    
-    onDuty = true
-    if onDuty and not locationSet then    
-      if not isCarryingPackage then      
-        pickRandomLocation()
-      end
-     
-    end
+  else
+    onDuty = true    
     doNotifyClient(5000, 'Recycle Center', 'You are now on duty', 'success')
     TriggerServerEvent('cornerstone_recycle:server:toggleDuty', true)
   end
@@ -299,11 +283,13 @@ local function SetupLaptop()
     if Config.Target == 'ox' then
       local parameters = {
         coords = { recycleCenter.DutyLocation.x, recycleCenter.DutyLocation.y, recycleCenter.DutyLocation.z - 1.0 },
+        size = { x = 1.0, y = 1.0, z = 1.0 },
         name = 'recycle_center_laptop',
         heading = recycleCenter.DutyLocation.w,
         debug = Config.Debug,
         minZ = recycleCenter.DutyLocation.z,
         maxZ = recycleCenter.DutyLocation.z - 2.0,
+        distance = 1.0,
         options = {
           {
             onSelect = function()
@@ -311,7 +297,7 @@ local function SetupLaptop()
             end,
             icon = 'fas fa-recycle',
             label = 'Toggle Duty',
-            distance = 1.5,
+            distance = 1.0,
           },
         },
       }
@@ -347,8 +333,8 @@ local function SetupInterior()
 end
 
 local function SetupPed()
-  LoadModel(ped.Model)  
-  
+  LoadModel(ped.Model)
+
   managerPed = CreatePed(0, ped.Model, ped.location.x, ped.location.y, ped.location.z - 1, ped.location.w, false, false)
 
   SetEntityAsMissionEntity(managerPed, true, true)
@@ -358,25 +344,17 @@ local function SetupPed()
   SetEntityHeading(managerPed, ped.location.w)
   if Config.UseTarget then
     if Config.Target == 'ox' then
-      local parameters = {
-        coords = { ped.location.x, ped.location.y, ped.location.z - 1.0 },
-        name = 'recycle_center_managerPed',
-        heading = ped.location.w,
-        debug = Config.Debug,
-        minZ = ped.location.z,
-        maxZ = ped.location.z - 2.0,
-        options = {
-          {
-            onSelect = function()
-              lib.showContext('recycle_manger_menu')
-            end,
-            icon = 'fas fa-comment-dollar',
-            label = 'Buy/Sell Items',
-            distance = 1.0,
-          },
-        },
-      }
-      exports.ox_target:addBoxZone(parameters)
+      exports.ox_target:addLocalEntity(managerPed, {
+        {
+          distance = 1.5,
+          name = 'recycle_center_managerPed',
+          icon = 'fas fa-comment-dollar',
+          label = 'Buy/Sell Items',
+          onSelect = function()
+            SetupContextMenu()
+          end,
+        }
+      })
     end
   end
 end
@@ -393,7 +371,6 @@ local function EnterWarehouse()
   SetupLaptop()
   SetupPed()
   SetupPickLocations()
-  SetupDropoffLocation()
 
   Citizen.Wait(1000)
   DoScreenFadeIn(1000)
@@ -403,6 +380,7 @@ end
 local function SetupRecycleCenter()
   local parameters = {
     coords = recycleCenter.Enter.xyz,
+    size = { x = 5.0, y = 2.0, z = 5.0 },
     name = 'recycle_center_enter',
     heading = recycleCenter.Enter.w,
     debug = Config.Debug,
@@ -422,8 +400,15 @@ local function SetupRecycleCenter()
   exports.ox_target:addBoxZone(parameters)
 end
 
-Citizen.CreateThread(function()     
+Citizen.CreateThread(function()
   CreateBlip()
   SetupRecycleCenter()
-  SetupContextMenu() 
+  while true do
+    Citizen.Wait(500)
+    if onDuty then
+      if not isCarryingPackage and not locationSet then
+        pickRandomLocation()
+      end
+    end
+  end
 end)
