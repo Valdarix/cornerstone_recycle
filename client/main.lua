@@ -15,6 +15,7 @@ local dropOffObj = nil
 
 local isCarryingPackage = false
 local currentPackage = 0
+
 local locationSet = false
 local pickupId = 'pikcupLocation'
 
@@ -72,16 +73,8 @@ local function ProcessDropoff()
   doNotifyClient(5000, 'Recycle Center', 'You have sorted this load!', 'success')
 end
 
-local function SetupDropoffLocation()
-  local dropoffLocation = recycleCenter.DropOff.location
-  LoadModel(recycleCenter.DropOff.model)
 
-  dropOffObj = CreateObject(recycleCenter.DropOff.model, dropoffLocation.x, dropoffLocation.y, dropoffLocation.z, false,
-    true, true)
-  SetEntityHeading(dropOffObj, dropoffLocation.w)
-  PlaceObjectOnGroundProperly(dropOffObj)
-  FreezeEntityPosition(dropOffObj, true)
-
+local function setupDropoffTarget()
   if Config.UseTarget then
     if Config.Target == 'ox' then
       exports.ox_target:addLocalEntity(dropOffObj, {
@@ -103,32 +96,44 @@ local function SetupDropoffLocation()
       })
     end
   end
+end 
+
+local function SetupDropoffLocation()
+  local dropoffLocation = recycleCenter.DropOff.location
+  LoadModel(recycleCenter.DropOff.model)
+
+  dropOffObj = CreateObject(recycleCenter.DropOff.model, dropoffLocation.x, dropoffLocation.y, dropoffLocation.z, false,
+    true, true)
+  SetEntityHeading(dropOffObj, dropoffLocation.w)
+  PlaceObjectOnGroundProperly(dropOffObj)
+  FreezeEntityPosition(dropOffObj, true)
+  
 end
 
 local function GrabPackage(type, location)
   DebugPrint('Grabbing package: ' .. type .. ' using animagtion and prop')
 
-  local boxModel = 'prop_cs_cardbox_01'
-  local bagModel = 'p_binbag_01_s' 
-  
+  local boxModel = `prop_cs_cardbox_01`
+  local bagModel = `p_binbag_01_s`
+    
   local animDict = ''
   local animName = ''
   local offsetX, offsetY, offsetZ = 0.0, 0.0, 0.0
   local rotX, rotY, rotZ = 0, 0, 0
-
+  currentPackage = 0
   local boneIndex = GetPedBoneIndex(cache.ped, 57005)
   if type == 'prop_recyclebin_04_b' then    
     LoadModel(bagModel)
     currentPackage = CreateObject(bagModel, location.x, location.y, location.z, false, true, true)
-    offsetX, offsetY, offsetZ = 0.30, -0.07, -0.20
-    rotX, rotY, rotZ = -120, 75, -10
+    offsetX, offsetY, offsetZ = 0.0, 0.0, 0.0
+    rotX, rotY, rotZ = 0, 0, 0  
     animDict = 'anim@heists@narcotics@trash'
     animName = 'idle'
   elseif type == 'prop_boxpile_06b' or type == 'prop_boxpile_01a' or type == 'prop_boxpile_04a' then
     LoadModel(boxModel)
     currentPackage = CreateObject(boxModel, location.x, location.y, location.z, false, true, true)
-    offsetX, offsetY, offsetZ = 0.0, 0.0, 0.0
-    rotX, rotY, rotZ = 0, 0, 0   
+    offsetX, offsetY, offsetZ = 0.30, -0.07, -0.20
+    rotX, rotY, rotZ = -120, 75, -10     
     animDict = 'anim@heists@box_carry@'
     animName = 'idle'
   end
@@ -137,7 +142,7 @@ local function GrabPackage(type, location)
   TaskPlayAnim(PlayerPedId(), animDict, animName, 8.0, -8.0, -1, 49, 0, false, false, false)
   AttachEntityToEntity(currentPackage, cache.ped, boneIndex, offsetX, offsetY, offsetZ, rotX, rotY, rotZ, true, true,
     false, true, 1, true)
-  SetupDropoffLocation()
+    setupDropoffTarget()
 end
 
 local function pickRandomLocation()
@@ -180,7 +185,6 @@ local function pickRandomLocation()
   end
   locationSet = true
 end
-
 
 local function SetupPickLocations()
   for k, v in pairs(pickLocations) do
@@ -367,6 +371,7 @@ local function EnterWarehouse()
   SetupLaptop()
   SetupPed()
   SetupPickLocations()
+  SetupDropoffLocation()
 
   Citizen.Wait(1000)
   DoScreenFadeIn(1000)
