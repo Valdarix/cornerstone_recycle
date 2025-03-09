@@ -69,6 +69,7 @@ local function ProcessDropoff()
     isCarryingPackage = false
     currentPackage = 0
     locationSet = false
+    TriggerServerEvent('cornerstone_recycle:server:processDropoff')
   end
   doNotifyClient(5000, 'Recycle Center', 'You have sorted this load!', 'success')
 end
@@ -149,6 +150,7 @@ local function pickRandomLocation()
   local randomLocation = pickLocations[math.random(#pickLocations)]
   pickupId = pickupId ..
   randomLocation.name .. randomLocation.location.x .. randomLocation.location.y .. randomLocation.location.z
+  TriggerServerEvent('cornerstone_recycle:server:registerPickupLocation', randomLocation.location)
   DebugPrint('Picking up location: ' .. pickupId)
   if Config.UseTarget then
     if Config.Target == 'ox' then
@@ -206,7 +208,13 @@ local function SetupContextMenu()
         title = 'Sell Materials',
         description = 'Sell your gathered materials.',
         icon = 'fas fa-money-bill-wave',
-
+        onSelect = function()
+          print("Pressed the button!")
+        end,
+        metadata = {
+          { label = 'Value 1', value = 'Some value' },
+          { label = 'Value 2', value = 300 }
+        },
       },
       {
         title = 'Buy Materials',
@@ -222,6 +230,8 @@ local function SetupContextMenu()
       },
     }
   })
+
+  lib.showContext('recycle_manger_menu')
 end
 
 AddEventHandler('onResourceStop', function(resourceName)

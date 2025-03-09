@@ -4,6 +4,7 @@ if Config.Framework == 'esx' then ESX = exports["es_extended"]:getSharedObject()
 
 local rewardItems = Config.RecycleCenter.Rewards
 local onDuty = false
+local dropoffLocation = nil
 
 ---@param orgin string # orgin where this is being called
 ---@param playerId number # center of check
@@ -47,6 +48,23 @@ RegisterNetEvent('cornerstone_recycle:server:toggleDuty', function (dutyState)
   end
 end)
 
+RegisterNetEvent('cornerstone_recycle:server:processDropoff', function()
+  if not onDuty then return end
+  if not dropoffLocation then return end
+
+  local canProcess = distanceCheck(source, dropoffLocation, 5.0)
+  if canProcess then
+    -- process dropoff
+  else
+    sendConsoleAlert('cornerstone_recycle:server:processDropoff', source, 5.0)
+  end
+  
+end)
+
+RegisterNetEvent('cornerstone_recycle:server:registerPickupLocation', function(location)
+  dropoffLocation = location
+    
+end)
 
 AddEventHandler('onResourceStart', function(resourceName)
   if (GetCurrentResourceName() ~= resourceName) then return end

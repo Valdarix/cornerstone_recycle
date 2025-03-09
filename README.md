@@ -11,7 +11,8 @@ If you are using ND Core you need to uncomment the ND core line in the fxmanifes
 
 TODO: Add Inventory tracking to allow for players to purchase materials sold by other players
 TODO: Add Buy and Sell logic to the server
-TODO: Add ability to search boxe
-TODO: Setup clipboard animation
+TODO: Setup clipboard animation to manager ped
 TODO: Setup large scale salvage for more items somewhere else in the scrapyard.
 TODO: Large scale salavage should possibly have levels and should be slower. 
+TODO: Fix model load issue
+
