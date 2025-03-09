@@ -28,12 +28,15 @@ local function CleanUpWarehouse()
       exports.ox_target:removeZone('recycle_center_laptop')
       exports.ox_target:removeZone('recycle_center_managerPed')
       exports.ox_target:removeZone('recycle_center_dropoff')      
-      
     end
   end
 
   if managerPed ~= nil and DoesEntityExist(managerPed) then
     DeleteEntity(managerPed)    
+  end
+
+  if currentPackage ~= nil and DoesEntityExist(currentPackage) then
+    DeleteEntity(currentPackage)
   end
 
   if dropOffObj ~= nil and DoesEntityExist(dropOffObj) then
@@ -51,26 +54,52 @@ end
 
 local function GrabPackage(type, location)
   DebugPrint('Grabbing package: ' .. type .. ' using animagtion and prop')
-  LoadModel(type)
-
-  currentPackage = CreateObject(type, location.x, location.y, location.z, false, true, true)
+   
+  local model = ''
+  if type == 'prop_recyclebin_04_b' then
+    model = 'prop_cs_cardbox_01'
+  else
+    model = 'p_binbag_01_s'
+  end
+  LoadModel(model)
+  
+  currentPackage = CreateObject(model, location.x, location.y, location.z, false, true, true)
 
   if type == 'prop_recyclebin_04_b' then
-    AttachEntityToEntity(currentPackage, cache.ped, GetPedBoneIndex(cache.ped, 57005), 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, true, true, false, true, 1, true)
+    local boneIndex = GetPedBoneIndex(cache.ped, 57005)     
+    local offsetX, offsetY, offsetZ = 0.30, -0.07, -0.20  
+    local rotX, rotY, rotZ = -120, 75, -10              
+   
+    -- Request and load the animation dictionary
+    local animDict = 'anim@heists@box_carry@'
+    local animName = 'idle'
+    lib.requestAnimDict(animDict)
+    
+    TaskPlayAnim(PlayerPedId(), animDict, animName, 8.0, -8.0, -1, 49, 0, false, false, false)
+    AttachEntityToEntity(currentPackage, cache.ped, boneIndex, offsetX, offsetY, offsetZ, rotX, rotY, rotZ, true, true, false, true, 1, true)
   elseif type == 'prop_boxpile_06b' or type == 'prop_boxpile_01a' or type == 'prop_boxpile_04a' then
-    AttachEntityToEntity(currentPackage, cache.ped, GetPedBoneIndex(cache.ped, 57005), 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, true, true, false, true, 1, true)
+    local boneIndex = GetPedBoneIndex(cache.ped, 57005)     
+    local offsetX, offsetY, offsetZ = 0.0, 0.0, 0.0  
+    local rotX, rotY, rotZ = 0, 0, 0              
+   
+    -- Request and load the animation dictionary
+    local animDict = 'anim@heists@narcotics@trash'
+    local animName = 'idle'
+    lib.requestAnimDict(animDict)
+    
+    TaskPlayAnim(PlayerPedId(), animDict, animName, 8.0, -8.0, -1, 49, 0, false, false, false)
+    AttachEntityToEntity(currentPackage, cache.ped, boneIndex, offsetX, offsetY, offsetZ, rotX, rotY, rotZ, true, true, false, true, 1, true)
   end
 end
 
 local function DropPackage()
   DebugPrint('Dropping package')
-  if currentPackage ~= nil and DoesEntityExist(currentPackage) then
-    DetachEntity(currentPackage, true, true)    
+  if currentPackage ~= nil and DoesEntityExist(currentPackage) then     
+    DeleteEntity(currentPackage)
     currentPackage = nil
-  end 
-
+    ClearPedTasks(cache.ped)
+  end
   isCarryingPackage = false
-
 end
 
 local function pickRandomLocation()
@@ -115,16 +144,13 @@ end
 
 local function ProcessDropoff()
   -- Process Dropoff   
-  isCarryingPackage = false
-  currentPackage = nil
-  locationSet = false
-  if onDuty and not locationSet then    
-    if not isCarryingPackage then  
+  if onDuty and isCarryingPackage then      
       DropPackage()    
       pickRandomLocation()
-    end
-   
-  end
+      isCarryingPackage = false
+      currentPackage = nil
+      locationSet = false
+  end  
   doNotifyClient(5000, 'Recycle Center', 'You have sorted this load!', 'success')
 end
 
