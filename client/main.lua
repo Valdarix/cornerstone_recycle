@@ -17,6 +17,7 @@ local dropOffObj = nil
 local isCarryingPackage = false
 local currentPackage = nil
 local locationSet = false
+local pickupId = 'pikcupLocation'
 
 
 local function CleanUpWarehouse()
@@ -48,14 +49,39 @@ local function CleanUpWarehouse()
   DebugPrint('Cleaned up warehouse')
 end
 
+local function GrabPackage(type, location)
+  DebugPrint('Grabbing package: ' .. type .. ' using animagtion and prop')
+  LoadModel(type)
+
+  currentPackage = CreateObject(type, location.x, location.y, location.z, false, true, true)
+
+  if type == 'prop_recyclebin_04_b' then
+    AttachEntityToEntity(currentPackage, cache.ped, GetPedBoneIndex(cache.ped, 57005), 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, true, true, false, true, 1, true)
+  elseif type == 'prop_boxpile_06b' or type == 'prop_boxpile_01a' or type == 'prop_boxpile_04a' then
+    AttachEntityToEntity(currentPackage, cache.ped, GetPedBoneIndex(cache.ped, 57005), 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, true, true, false, true, 1, true)
+  end
+end
+
+local function DropPackage()
+  DebugPrint('Dropping package')
+  if currentPackage ~= nil and DoesEntityExist(currentPackage) then
+    DetachEntity(currentPackage, true, true)    
+    currentPackage = nil
+  end 
+
+  isCarryingPackage = false
+
+end
+
 local function pickRandomLocation()
   local randomLocation = pickLocations[math.random(#pickLocations)]
-  DebugPrint('Picking up location: ' .. randomLocation.name)
+  pickupId = pickupId .. randomLocation.name .. randomLocation.location.x .. randomLocation.location.y .. randomLocation.location.z
+  DebugPrint('Picking up location: ' .. pickupId)
   if Config.UseTarget then
     if Config.Target == 'ox' then
       local parameters = {
         coords = { randomLocation.location.x, randomLocation.location.y, randomLocation.location.z + 1.0 },
-        name = 'recycle_center_pickup',
+        name = pickupId,
         heading = randomLocation.location.w,
         debug = Config.Debug,
         minZ = randomLocation.location.z,
@@ -67,14 +93,16 @@ local function pickRandomLocation()
                 isCarryingPackage = true
                 currentPackage = randomLocation
                 doNotifyClient(5000, 'Recycle Center', 'You have picked up a load!', 'success')
-                exports.ox_target:removeZone('recycle_center_pickup')
+                GrabPackage(randomLocation.name, randomLocation.location)
+
+                exports.ox_target:removeZone(pickupId)
               else
                 doNotifyClient(5000, 'Recycle Center', 'You are already carrying a load!', 'error')
               end
             end,
             icon = 'fas fa-hand',
             label = 'Pickup Recycling',
-            distance = 2.0,
+            distance = 1.0,
           },
         },
       }
@@ -91,7 +119,8 @@ local function ProcessDropoff()
   currentPackage = nil
   locationSet = false
   if onDuty and not locationSet then    
-    if not isCarryingPackage then      
+    if not isCarryingPackage then  
+      DropPackage()    
       pickRandomLocation()
     end
    
@@ -219,7 +248,10 @@ end
 local function ToggleDuty()
   if onDuty then   
     onDuty = false
-    exports.ox_target:removeZone('recycle_center_pickup')
+    locationSet = false
+    isCarryingPackage = false
+    currentPackage = nil
+    exports.ox_target:removeZone(pickupId)
     
     TriggerServerEvent('cornerstone_recycle:server:toggleDuty', false)
     doNotifyClient(5000, 'Recycle Center', 'You are now off duty', 'success')
