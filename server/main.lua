@@ -1,7 +1,6 @@
 if Config.Framework == 'qb' then QBCore = exports['qb-core']:GetCoreObject() end
 if Config.Framework == 'qbx' then QBX = exports.qbx_core end
 if Config.Framework == 'esx' then ESX = exports["es_extended"]:getSharedObject() end
-if Config.Framework == 'nd' then ND = exports["ND_Core"] end
 
 local rewardItems = Config.RecycleCenter.Rewards
 local onDuty = false

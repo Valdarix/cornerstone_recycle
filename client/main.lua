@@ -1,7 +1,6 @@
 if Config.Framework == 'qb' or Config.Framework == 'qbx' then QBCore = exports['qb-core']:GetCoreObject() end
 if Config.Framework == 'esx' then ESX = exports["es_extended"]:getSharedObject() end
 if Config.Framework == 'qbx' then QBX = exports.qbx_core end
-if Config.Framework == 'nd' then ND = exports["ND_Core"] end
 
 local recycleCenter = Config.RecycleCenter
 local ped = recycleCenter.Ped
@@ -110,29 +109,26 @@ local function GrabPackage(type, location)
   DebugPrint('Grabbing package: ' .. type .. ' using animagtion and prop')
 
   local boxModel = 'prop_cs_cardbox_01'
-  local bagModel = 'p_binbag_01_s'
-
-  LoadModel(boxModel)
-  LoadModel(bagModel)
+  local bagModel = 'p_binbag_01_s' 
+  
   local animDict = ''
   local animName = ''
   local offsetX, offsetY, offsetZ = 0.0, 0.0, 0.0
   local rotX, rotY, rotZ = 0, 0, 0
 
   local boneIndex = GetPedBoneIndex(cache.ped, 57005)
-  if type == 'prop_recyclebin_04_b' then
+  if type == 'prop_recyclebin_04_b' then    
+    LoadModel(bagModel)
+    currentPackage = CreateObject(bagModel, location.x, location.y, location.z, false, true, true)
     offsetX, offsetY, offsetZ = 0.30, -0.07, -0.20
     rotX, rotY, rotZ = -120, 75, -10
-    currentPackage = CreateObject(bagModel, location.x, location.y, location.z, false, true, true)
-    -- Request and load the animation dictionary
     animDict = 'anim@heists@narcotics@trash'
     animName = 'idle'
   elseif type == 'prop_boxpile_06b' or type == 'prop_boxpile_01a' or type == 'prop_boxpile_04a' then
+    LoadModel(boxModel)
     currentPackage = CreateObject(boxModel, location.x, location.y, location.z, false, true, true)
     offsetX, offsetY, offsetZ = 0.0, 0.0, 0.0
-    rotX, rotY, rotZ = 0, 0, 0
-
-    -- Request and load the animation dictionary
+    rotX, rotY, rotZ = 0, 0, 0   
     animDict = 'anim@heists@box_carry@'
     animName = 'idle'
   end

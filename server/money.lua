@@ -1,8 +1,6 @@
 if Config.Framework == 'qb'  then QBCore = exports['qb-core']:GetCoreObject() end
 if Config.Framework == 'QBX' then QBX = exports.QBX_core end
 if Config.Framework == 'esx' then ESX = exports["es_extended"]:getSharedObject() end
-if Config.Framework == 'nd' then ND = exports["ND_Core"] end
-
 
 ---@param src number # player source
 ---@param amount number # amount to take from player
@@ -28,11 +26,7 @@ local function takeMoney(src, amount, reason)
       return true
     else
       return false
-    end
-  elseif Config.Framework == 'nd' then
-    local plr = ND.getPlayer(src)
-    local success = plr.deductMoney('cash', 500, reason)
-    return success    
+    end  
   elseif Config.Framework == 'esx' then
     local plr = ESX.GetPlayerFromId(src)
     if not plr then return false end
@@ -56,11 +50,7 @@ local function addMoney(src, amount, account, reason)
   elseif Config.Framework == 'qb' then
     local plr = QBCore.Functions.GetPlayer(src)
     if not plr then return false end
-    plr.Functions.AddMoney(account, amount)
-  elseif Config.Framework == 'nd' then
-    local plr = ND.getPlayer(src)
-    local success = plr.addMoney(account, 500, reason)
-    return success   
+    plr.Functions.AddMoney(account, amount)  
   elseif Config.Framework == 'esx' then
     local plr = ESX.GetPlayerFromId(src)
     if not plr then return false end

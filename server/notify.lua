@@ -3,7 +3,7 @@
 ---@param title string # noti title can be empty string for qb
 ---@param desc string # noti desc
 ---@param type string # success or error
-function doNotify(src, duration, title, desc, type)
+function doNotifyServer(src, duration, title, desc, type)
   if Config.Notification == 'qb' then
     TriggerClientEvent('QBCore:Notify', src, title .. ' ' .. desc, type, duration)
   elseif Config.Notification == 'esx' then

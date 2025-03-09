@@ -23,9 +23,7 @@ function DetectCore()
         elseif GetResourceState('qb_core') == 'started' then
             Config.Framework = 'qb'
         elseif GetResourceState('es_extended') == 'started' then
-            Config.Framework = 'qb'
-        elseif GetResourceState('ND_Core') == 'started' then
-            Config.Framework = 'nd'
+            Config.Framework = 'qb'       
         else
             Config.Framework = 'none'
         end

@@ -2,7 +2,7 @@ Config = {}
 
 Config.Debug = true
 
-Config.Framework = 'auto'          -- auto, qbx , qb, esx, nd
+Config.Framework = 'auto'          -- auto, qbx , qb, esx,
 Config.Inventory = 'ox'            -- ox , qb, esx, ps
 
 Config.UseTarget = true           -- setting to false will use interact instead of target
