@@ -63,35 +63,57 @@ Config.RecycleCenter = {
         { name = 'prop_recyclebin_04_b', location = vec4(1010.32, -3097.71, -40.00, 358.73) },
     },
     Rewards = {
-        {
-            Item = 'glass',
-            Amount = math.random(1, 5),
-            SellPrice = 5,
-            BuyPrice = 1,
-        },
-        {
-            Item = 'steel',
-            Amount = math.random(1, 5),
-            SellPrice = 5,
-            BuyPrice = 1,
-        },
-        {
-            Item = 'plastic',
-            Amount = math.random(1, 5),
-            SellPrice = 5,
-            BuyPrice = 1,
-        },
-        {
-            Item = 'aluminum',
-            Amount = math.random(1, 5),
-            SellPrice = 5,
-            BuyPrice = 1,
-        },
-        {
-            Item = 'rubber',
-            Amount = math.random(1, 5),
-            SellPrice = 5,
-            BuyPrice = 1,
-        },
+        MinRewardItems = 1,
+        MaxRewardItems = 5,
+        Items = {
+            {
+                Item = 'glass',
+                Amount = math.random(1, 5),
+                SellPrice = 5,
+                BuyPrice = 1,
+            },
+            {
+                Item = 'steel',
+                Amount = math.random(1, 5),
+                SellPrice = 5,
+                BuyPrice = 1,
+            },
+            {
+                Item = 'plastic',
+                Amount = math.random(1, 5),
+                SellPrice = 5,
+                BuyPrice = 1,
+            },
+            {
+                Item = 'aluminium',
+                Amount = math.random(1, 5),
+                SellPrice = 5,
+                BuyPrice = 1,
+            },
+            {
+                Item = 'rubber',
+                Amount = math.random(1, 5),
+                SellPrice = 5,
+                BuyPrice = 1,
+            },
+            {
+                Item = 'metalscrap',
+                Amount = math.random(1, 5),
+                SellPrice = 5,
+                BuyPrice = 1,
+            },
+            {
+                Item = 'iron',
+                Amount = math.random(1, 5),
+                SellPrice = 5,
+                BuyPrice = 1,
+            },
+            {
+                Item = 'copper',
+                Amount = math.random(1, 5),
+                SellPrice = 5,
+                BuyPrice = 1,
+            },
+        }
     },
 }

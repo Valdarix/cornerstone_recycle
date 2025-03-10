@@ -23,7 +23,10 @@ exports('sendConsoleAlert', sendConsoleAlert)
 ---@param coords vector3 # center of check
 ---@param radius number # radius of check
 local function distanceCheck(playerId, coords, radius)
-  local dist = #(GetEntityCoords(GetPlayerPed(playerId)) - coords)
+  local player = source
+  local ped = GetPlayerPed(player)
+  local playerCoords = GetEntityCoords(ped)
+  local dist = #(playerCoords - coords)
 
   if dist > radius then
     return false
@@ -51,10 +54,20 @@ end)
 RegisterNetEvent('cornerstone_recycle:server:processDropoff', function()
   if not onDuty then return end
   if not dropoffLocation then return end
-
+  
   local canProcess = distanceCheck(source, dropoffLocation, 5.0)
   if canProcess then
-    -- process dropoff
+    -- Determine how many items to give from Config.RecycleCenter.Rewards min and max values
+    local rewardCnt = math.random(rewardItems.MinRewardItems, rewardItems.MaxRewardItems)
+    -- now use the rewardCnt to select that amount for rewards from Config.RecycleCenter.Rewards.Items
+    for i = 1, rewardCnt do
+      local item = rewardItems.Items[math.random(#rewardItems.Items)]
+      DebugPrint(item)
+      DebugPrint('Giving player ' .. item.Amount .. ' ' .. item.Item)
+      -- determine how many of that item go give the player based on Config.RecycleCenter.Rewards.Items
+      addItem(source, item.Item, item.Amount)
+    end
+    
   else
     sendConsoleAlert('cornerstone_recycle:server:processDropoff', source, 5.0)
   end

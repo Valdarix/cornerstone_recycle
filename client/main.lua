@@ -111,7 +111,8 @@ local function SetupDropoffLocation()
   
 end
 
-local function GrabPackage(type, location)
+local function GrabPackage(type, location) 
+
   DebugPrint('Grabbing package: ' .. type .. ' using animagtion and prop')
 
   local boxModel = `prop_cs_cardbox_01`
@@ -150,7 +151,9 @@ local function pickRandomLocation()
   local randomLocation = pickLocations[math.random(#pickLocations)]
   pickupId = pickupId ..
   randomLocation.name .. randomLocation.location.x .. randomLocation.location.y .. randomLocation.location.z
-  TriggerServerEvent('cornerstone_recycle:server:registerPickupLocation', randomLocation.location)
+  -- convert randomLocation.location to vector3 so it can be passed to server
+  local newLocation = vector3(recycleCenter.DropOff.location.x, recycleCenter.DropOff.location.y, recycleCenter.DropOff.location.z)
+  TriggerServerEvent('cornerstone_recycle:server:registerPickupLocation', newLocation)
   DebugPrint('Picking up location: ' .. pickupId)
   if Config.UseTarget then
     if Config.Target == 'ox' then

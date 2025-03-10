@@ -4,7 +4,7 @@ if Config.Framework == 'esx' then ESX = exports["es_extended"]:getSharedObject()
 
 ---@param src number # player source
 ---@param amount number # amount to take from player
-local function takeMoney(src, amount, reason)
+function takeMoney(src, amount, reason)
   if Config.Framework == 'QBX' then
     if QBX:GetMoney(src, 'cash') >= amount then
       QBX:RemoveMoney(src, 'cash', amount, reason)
@@ -44,7 +44,7 @@ exports('takeMoney', takeMoney)
 ---@param amount number # amount to take from player
 ---@param account string # bank or cash
 ---@param reason string # reason for change
-local function addMoney(src, amount, account, reason)
+function addMoney(src, amount, account, reason)
   if Config.Framework == 'QBX' then
     QBX:AddMoney(src, account, amount, reason)
   elseif Config.Framework == 'qb' then

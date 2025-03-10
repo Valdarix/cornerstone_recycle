@@ -2,14 +2,13 @@ fx_version 'cerulean'
 game 'gta5'
 
 author 'Cornerstone Scripts'
-description 'cs_template'
+description 'Cornerstreone Scripts Recycling Script with disconnect protection'
 version '1.0.0'
 
 shared_scripts {
     '@ox_lib/init.lua',
     'config/*.lua',
-    'shared/*.lua',
-    -- "@ND_Core/init.lua"
+    'shared/*.lua',   
 }
 
 server_scripts {

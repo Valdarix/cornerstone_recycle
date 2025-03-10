@@ -5,9 +5,6 @@ This template was created based on the original Template provided by Twisle http
 Script requires:
 - [Ox Lib] https://github.com/overextended/ox_lib
 
-## ND CORE
-If you are using ND Core you need to uncomment the ND core line in the fxmanifest.lua
-
 
 TODO: Add Inventory tracking to allow for players to purchase materials sold by other players
 TODO: Add Buy and Sell logic to the server

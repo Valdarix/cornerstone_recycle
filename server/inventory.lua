@@ -6,7 +6,7 @@ if Config.Framework == 'esx' then ESX = exports["es_extended"]:getSharedObject()
 ---@param src number # player source
 ---@param item string # item name
 ---@param amount number # amount to take from player
-local function removeItem(src, item, amount)
+function removeItem(src, item, amount)
   if Config.Inventory == 'ox' then
     exports.ox_inventory:RemoveItem(src, item, amount)
   elseif Config.Inventory == 'qb' then
@@ -24,7 +24,7 @@ exports('removeItem', removeItem)
 ---@param src number # player source
 ---@param item string # item name
 ---@param amount number # amount to take from player
-local function addItem(src, item, amount)
+function addItem(src, item, amount)
   if Config.Inventory == 'ox' then
     if exports.ox_inventory:CanCarryItem(src, item, amount) then
       exports.ox_inventory:AddItem(src, item, amount)
