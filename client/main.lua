@@ -17,6 +17,7 @@ local isCarryingPackage = false
 local currentPackage = 0
 
 local locationSet = false
+local randomLocation = nil
 local pickupId = 'pikcupLocation'
 
 
@@ -148,7 +149,7 @@ local function GrabPackage(type, location)
 end
 
 local function pickRandomLocation()
-  local randomLocation = pickLocations[math.random(#pickLocations)]
+  randomLocation = pickLocations[math.random(#pickLocations)]
   pickupId = pickupId ..
   randomLocation.name .. randomLocation.location.x .. randomLocation.location.y .. randomLocation.location.z
   -- convert randomLocation.location to vector3 so it can be passed to server
@@ -421,7 +422,9 @@ Citizen.CreateThread(function()
     Citizen.Wait(500)
     if onDuty then
       if not isCarryingPackage and not locationSet then
-        pickRandomLocation()
+        pickRandomLocation()   
+        DebugPrint(randomLocation.location.x .. ' ' .. randomLocation.location.y .. ' ' .. randomLocation.location.z)
+        DrawMarker(1, randomLocation.location.x, randomLocation.location.y, randomLocation.location.z, 0, 0, 0, 0, 0, 0, 10, 10, 10, 0, 100, 100,  100, false, false, 2, true, nil, nil, false)          
       end
     end
   end
