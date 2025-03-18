@@ -1,6 +1,3 @@
-## Credit
-This template was created based on the original Template provided by Twisle https://github.com/TwisleOfficial/tw_bridge
-
 ## Dependencies
 Script requires:
 - [Ox Lib] https://github.com/overextended/ox_lib
