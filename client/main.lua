@@ -146,6 +146,7 @@ local function GrabPackage(type, location)
   AttachEntityToEntity(currentPackage, cache.ped, boneIndex, offsetX, offsetY, offsetZ, rotX, rotY, rotZ, true, true,
     false, true, 1, true)
     setupDropoffTarget()
+   
 end
 
 local function pickRandomLocation()
@@ -415,17 +416,27 @@ local function SetupRecycleCenter()
   exports.ox_target:addBoxZone(parameters)
 end
 
+
 Citizen.CreateThread(function()
   CreateBlip()
   SetupRecycleCenter()
   while true do
     Citizen.Wait(500)
-    if onDuty then
-      if not isCarryingPackage and not locationSet then
-        pickRandomLocation()   
-        DebugPrint(randomLocation.location.x .. ' ' .. randomLocation.location.y .. ' ' .. randomLocation.location.z)
-        DrawMarker(1, randomLocation.location.x, randomLocation.location.y, randomLocation.location.z, 0, 0, 0, 0, 0, 0, 10, 10, 10, 0, 100, 100,  100, false, false, 2, true, nil, nil, false)          
-      end
+    if onDuty and not isCarryingPackage and not locationSet then
+      pickRandomLocation()
+    end
+  end
+end)
+
+
+Citizen.CreateThread(function()
+  while true do 
+    if onDuty and locationSet and randomLocation ~= nil and not isCarryingPackage then
+      DrawMarker(3, randomLocation.location.x, randomLocation.location.y, randomLocation.location.z + 3.0, 
+      0, 0, 0, 180.0, 0, 0, 1.25, 1.25, 1.25, 255, 0, 0, 100, false, false, 2, true, nil, nil, false)
+        Citizen.Wait(1) 
+    else
+      Citizen.Wait(250) -- If we're not drawing anything, we can sleep a bit to reduce resource usage
     end
   end
 end)
