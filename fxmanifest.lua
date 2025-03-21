@@ -16,7 +16,10 @@ server_scripts {
 }
 
 client_scripts {
-    'client/*.lua'
+    'client/*.lua',
+    '@PolyZone/client.lua',
+    '@PolyZone/BoxZone.lua',
+    '@PolyZone/CircleZone.lua'
 }
 
 lua54 'yes'

@@ -1,9 +1,14 @@
+if Config.Framework == 'qb'  then QBCore = exports['qb-core']:GetCoreObject() end
+if Config.Framework == 'esx' then ESX = exports["es_extended"]:getSharedObject() end
+if Config.Framework == 'qbx' then QBX = exports.qbx_core end
+
 ---@param src number # player source
 ---@param duration number # Length of noti
 ---@param title string # noti title can be empty string for qb
 ---@param desc string # noti desc
 ---@param type string # success or error
 function doNotifyServer(src, duration, title, desc, type)
+  DebugPrint('doNotifyServer: ' .. Config.Notification)
   if Config.Notification == 'qb' then
     TriggerClientEvent('QBCore:Notify', src, title .. ' ' .. desc, type, duration)
   elseif Config.Notification == 'esx' then

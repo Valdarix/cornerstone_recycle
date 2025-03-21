@@ -3,12 +3,12 @@ Config = {}
 Config.Debug = true
 
 Config.Framework = 'auto'          -- auto, qbx , qb, esx,
-Config.Inventory = 'ox'            -- ox , qb, esx, ps
+Config.Inventory = 'qb'            -- ox , qb, esx, ps, qs
 
 Config.UseTarget = true           -- setting to false will use interact instead of target
-Config.Target = 'ox'              -- ox , qb
+Config.Target = 'qb'              -- ox , qb
 
-Config.Notification = 'ox'         -- ox , qb, esx, k5, okok, xs
+Config.Notification = 'qb'         -- ox , qb, esx, k5, okok, xs
 Config.XSNotifyLocation = 0              -- 0 Middle, 1 Bottom, 2 Left, 3 Right. THIS ONLY MATTERS IF Config.Notification = 'xs'
 
 Config.Progress = 'ox-circle'      -- ox-normal , ox-circle , qb, esx
