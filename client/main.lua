@@ -33,6 +33,12 @@ local function CleanUpWarehouse()
       exports.ox_target:removeLocalEntity(managerPed)
       exports.ox_target:removeLocalEntity(dropOffObj)
     end
+    if Config.Target == 'qb' then
+      exports['qb-target']:RemoveZone('recycle_center_exit')
+      exports['qb-target']:RemoveZone('recycle_center_laptop')
+      exports['qb-target']:RemoveZone('recycle_center_managerPed')
+      exports['qb-target']:RemoveTargetEntity(dropOffObj, 'Sort Recycling')
+    end
   end
 
   if managerPed ~= nil and DoesEntityExist(managerPed) then
