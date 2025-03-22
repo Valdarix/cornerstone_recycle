@@ -2,7 +2,7 @@ fx_version 'cerulean'
 game 'gta5'
 
 author 'Cornerstone Scripts'
-description 'Cornerstreone Scripts Recycling Script with disconnect protection'
+description 'Cornerstreone Scripts Recycling Script'
 version '1.0.0'
 
 shared_scripts {

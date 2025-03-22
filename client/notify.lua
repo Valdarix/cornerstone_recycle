@@ -1,7 +1,7 @@
----@param duration number # Length of noti
----@param title string # noti title can be empty string for qb
----@param desc string # noti desc
----@param type string # success or error
+---@param duration number 
+---@param title string 
+---@param desc string 
+---@param type string 
 function doNotifyClient(duration, title, desc, type)
   DebugPrint('doNotifyServer: ' .. Config.Notification .. ' ' .. Config.Framework.. desc)
   if Config.Notification == 'qb' then

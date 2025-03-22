@@ -519,7 +519,6 @@ local function EnterWarehouse()
   isInsideEntranceZone = false
 end
 
--- Create Function to setup the recycle center using ox target and CreateBoxZone
 local function SetupRecycleCenter()
   if Config.UseTarget then
     if Config.Target == 'ox' then
@@ -620,7 +619,7 @@ Citizen.CreateThread(function()
       0, 0, 0, 180.0, 0, 0, 1.25, 1.25, 1.25, 255, 0, 0, 100, false, false, 2, true, nil, nil, false)
         Citizen.Wait(1) 
     else
-      Citizen.Wait(250) -- If we're not drawing anything, we can sleep a bit to reduce resource usage
+      Citizen.Wait(250)
     end
   end
 end)
