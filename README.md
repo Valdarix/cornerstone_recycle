@@ -1,10 +1,8 @@
 ## Dependencies
 Script requires:
-- [Ox Lib] https://github.com/overextended/ox_lib
--- Ox Lib is used for menus, ped caching and more. 
+- [Ox Lib] https://github.com/overextended/ox_lib - Ox Lib is used for menus, ped caching and more. 
 
--[Ox MySql] https://github.com/overextended/oxmysql/releases
--- Used for database access. 
+- [Ox MySql] https://github.com/overextended/oxmysql/releases - Used for database access. 
 
 
 TODO: Add Inventory tracking to allow for players to purchase materials sold by other players
