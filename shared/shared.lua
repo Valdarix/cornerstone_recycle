@@ -20,7 +20,7 @@ function DetectCore()
     if Config.Framework == 'auto' then
         if GetResourceState('qbx_core') == 'started' then
             Config.Framework = 'qbx'
-        elseif GetResourceState('qb_core') == 'started' then
+        elseif GetResourceState('qb-core') == 'started' then
             Config.Framework = 'qb'
         elseif GetResourceState('es_extended') == 'started' then
             Config.Framework = 'qb'       
@@ -29,9 +29,15 @@ function DetectCore()
         end
     end
 
-    DebugPrint('Corenerstone Recyling Started with for the : ' .. Config.Framework .. ' framework')
+    DebugPrint('Cornerstone Recyling Started with for the : ' .. Config.Framework .. ' framework')
     DebugPrint('++ Notifications: ' .. Config.Notification)
     DebugPrint('++ Inventory: ' .. Config.Inventory)
+    if Config.UseTarget then
+        DebugPrint('++ Target: ' .. Config.Target)
+    else
+        DebugPrint('++ Target is Disabled')
+    end
+   
     DebugPrint('++ Progress: ' .. Config.Progress)
 end
 

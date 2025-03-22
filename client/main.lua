@@ -20,6 +20,9 @@ local locationSet = false
 local randomLocation = nil
 local pickupId = 'pikcupLocation'
 
+local isInsideEntranceZone = false
+local entranceZone = nil
+
 
 local function CleanUpWarehouse()
   -- Cleanup
@@ -75,7 +78,6 @@ local function ProcessDropoff()
   doNotifyClient(5000, 'Recycle Center', 'You have sorted this load!', 'success')
 end
 
-
 local function setupDropoffTarget()
   if Config.UseTarget then
     if Config.Target == 'ox' then
@@ -83,7 +85,7 @@ local function setupDropoffTarget()
         {
           distance = 1.5,
           name = 'recycle_center_dropoff',
-          icon = 'recycle',
+          icon = 'fas fa-recycle',
           label = 'Sort Recycling',
           onSelect = function()
             if isCarryingPackage then
@@ -96,6 +98,30 @@ local function setupDropoffTarget()
           end,
         }
       })
+    end
+    if Config.Target == 'qb' then
+      exports['qb-target']:AddTargetEntity(dropOffObj, { 
+      options = { 
+        {
+          num = 1, 
+          type = "client",          
+          icon = 'fas fa-recycle', 
+          label = 'Sort Recycling',
+          targeticon = 'fas fa-recycle',          
+          action = function()
+            if isCarryingPackage then
+              if currentPackage ~= nil then
+                ProcessDropoff()
+              end
+            else
+              doNotifyClient(5000, 'Recycle Center', 'You do not have anything to sort!', 'error')
+            end
+          end,
+         
+        }
+      },
+      distance = 1.5, 
+    })
     end
   end
 end 
@@ -174,8 +200,8 @@ local function pickRandomLocation()
                 isCarryingPackage = true
                 doNotifyClient(5000, 'Recycle Center', 'You have picked up a load!', 'success')
                 GrabPackage(randomLocation.name, randomLocation.location)
-
-                exports.ox_target:removeZone(pickupId)
+                exports['qb-target']:RemoveZone(pickupId)
+                
               else
                 doNotifyClient(5000, 'Recycle Center', 'You are already carrying a load!', 'error')
               end
@@ -188,6 +214,36 @@ local function pickRandomLocation()
       }
       exports.ox_target:addBoxZone(parameters)
       DebugPrint('Added pickup location')
+    end
+
+    if Config.Target == 'qb' then
+      exports['qb-target']:AddBoxZone(pickupId, vector3(randomLocation.location.x, randomLocation.location.y, randomLocation.location.z + 0.5 ), 5.0, 5.0, {
+        name = pickupId,
+        heading = randomLocation.location.w,
+        debugPoly = Config.Debug,
+        minZ = randomLocation.location.z,
+        maxZ = randomLocation.location.z + 2.0,
+      }, {
+        options = {
+          {
+                  type = "client",
+                  action = function()
+                    if not isCarryingPackage then
+                      isCarryingPackage = true
+                      doNotifyClient(5000, 'Recycle Center', 'You have picked up a load!', 'success')
+                      GrabPackage(randomLocation.name, randomLocation.location)
+                      
+                      exports['qb-target']:RemoveZone(pickupId)
+                    else
+                      doNotifyClient(5000, 'Recycle Center', 'You are already carrying a load!', 'error')
+                    end
+                  end,
+                  icon = 'fas fa-hand',
+                  label = 'Pickup Recycling',    
+          },
+        },
+        distance = 1.0
+      })  
     end
   end
   locationSet = true
@@ -282,10 +338,12 @@ local function ToggleDuty()
     locationSet = false
     isCarryingPackage = false
     currentPackage = 0
-    exports.ox_target:removeZone(pickupId)
+    if Config.Target == 'ox' then
+      exports.ox_target:removeZone(pickupId)
+    end    
 
     TriggerServerEvent('cornerstone_recycle:server:toggleDuty', false)
-    doNotifyClient(5000, 'Recycle Center', 'You are now off duty', 'success')
+    doNotifyClient(5000, 'Recycle Center', 'You are now off duty', 'error')
   else
     onDuty = true    
     doNotifyClient(5000, 'Recycle Center', 'You are now on duty', 'success')
@@ -310,13 +368,34 @@ local function SetupLaptop()
             onSelect = function()
               ToggleDuty()
             end,
-            icon = 'fas fa-recycle',
+            icon = 'fas fa-laptop',
             label = 'Toggle Duty',
             distance = 1.0,
           },
         },
       }
       exports.ox_target:addBoxZone(parameters)
+    end
+    if Config.Target == 'qb' then
+      exports['qb-target']:AddBoxZone('recycle_center_laptop', vector3(recycleCenter.DutyLocation.x, recycleCenter.DutyLocation.y, recycleCenter.DutyLocation.z), 5.0, 5.0, {
+        name = 'recycle_center_laptop',
+        heading = recycleCenter.DutyLocation.w,
+        debugPoly = Config.Debug,
+        minZ = recycleCenter.DutyLocation.z - 1.0,
+        maxZ = recycleCenter.DutyLocation.z + 1.0,
+      }, {
+        options = {
+          {
+                  type = "client",
+                  action = function()
+                    ToggleDuty()
+                  end,
+                  icon = 'fas fa-laptop',
+                  label = 'Toggle Duty',    
+          },
+        },
+        distance = 2.0
+      })  
     end
   end
 end
@@ -329,7 +408,7 @@ local function SetupInterior()
         name = 'recycle_center_exit',
         heading = recycleCenter.Exit.w,
         debug = Config.Debug,
-        minZ = recycleCenter.Exit.z,
+        minZ = recycleCenter.Exit.z - 1.0,
         maxZ = recycleCenter.Exit.z + 1.0,
         options = {
           {
@@ -343,6 +422,27 @@ local function SetupInterior()
         },
       }
       exports.ox_target:addBoxZone(parameters)
+    end
+    if Config.Target == 'qb' then
+      exports['qb-target']:AddBoxZone('recycle_center_exit', vector3(recycleCenter.Exit.x, recycleCenter.Exit.y, recycleCenter.Exit.z), 5.0, 5.0, {
+        name = 'recycle_center_exit',
+        heading = recycleCenter.Exit.w,
+        debugPoly = Config.Debug,
+        minZ = recycleCenter.Exit.z - 1.0,
+        maxZ = recycleCenter.Exit.z + 1.0,
+      }, {
+        options = {
+          {
+                  type = "client",
+                  action = function()
+                    ExitWarehouse()
+                  end,
+                  icon = 'fas fa-recycle',
+                  label = 'Exit Recycle Center',     
+          },
+        },
+        distance = 2.0
+      })  
     end
   end
 end
@@ -390,30 +490,78 @@ local function EnterWarehouse()
 
   Citizen.Wait(1000)
   DoScreenFadeIn(1000)
+
+  isInsideEntranceZone = false
 end
 
 -- Create Function to setup the recycle center using ox target and CreateBoxZone
 local function SetupRecycleCenter()
-  local parameters = {
-    coords = recycleCenter.Enter.xyz,
-    size = { x = 5.0, y = 2.0, z = 5.0 },
-    name = 'recycle_center_enter',
-    heading = recycleCenter.Enter.w,
-    debug = Config.Debug,
-    minZ = recycleCenter.Enter.z,
-    maxZ = recycleCenter.Enter.z + 1.0,
-    options = {
-      {
-        onSelect = function()
-          EnterWarehouse()
-        end,
-        icon = 'fas fa-recycle',
-        label = 'Enter Recycle Center',
-        distance = 2.0,
-      },
-    },
-  }
-  exports.ox_target:addBoxZone(parameters)
+  if Config.UseTarget then
+    if Config.Target == 'ox' then
+      local parameters = {
+        coords = recycleCenter.Enter.xyz,
+        size = { x = 5.0, y = 2.0, z = 5.0 },
+        name = 'recycle_center_enter',
+        heading = recycleCenter.Enter.w,
+        debug = Config.Debug,
+        minZ = recycleCenter.Enter.z - 1.0,
+        maxZ = recycleCenter.Enter.z + 1.0,
+        options = {
+          {
+            onSelect = function()
+              EnterWarehouse()
+            end,
+            icon = 'fas fa-recycle',
+            label = 'Enter Recycle Center',
+            distance = 2.0,
+          },
+        },
+      }
+      exports.ox_target:addBoxZone(parameters)
+    end
+
+    if Config.Target == 'qb' then
+      exports['qb-target']:AddBoxZone("recycle_center_enter", vector3(recycleCenter.Enter.x, recycleCenter.Enter.y, recycleCenter.Enter.z), 5.0, 5.0, {
+        name = "recycle_center_enter",
+        heading = recycleCenter.Enter.w,
+        debugPoly = Config.Debug,
+        minZ = recycleCenter.Enter.z - 1.0,
+        maxZ = recycleCenter.Enter.z + 1.0,
+      }, {
+        options = {
+          {
+                  type = "client",
+                  action = function()
+                    EnterWarehouse()
+                  end,
+                  icon = 'fas fa-recycle',
+                  label = 'Enter Recycle Center',     
+          },
+        },
+        distance = 2.0
+      })  
+    end
+  else
+    entranceZone = BoxZone:Create(vector3(recycleCenter.Enter.x, recycleCenter.Enter.y, recycleCenter.Enter.z), 1, 4, {
+      name = "recycle_center_enter",
+      heading = recycleCenter.Enter.w,
+      minZ = recycleCenter.Enter.z - 1.0,
+      maxZ = recycleCenter.Enter.z + 1.0,
+      debugPoly = true
+  })
+
+  entranceZone:onPlayerInOut(function(isPointInside)
+      if isPointInside then
+          exports['qb-core']:DrawText('[E]nter Recycle Center', 'left')
+      else
+          exports['qb-core']:HideText()
+      end
+
+      isInsideEntranceZone = isPointInside
+  end)
+  end
+
+  
 end
 
 
@@ -423,6 +571,7 @@ Citizen.CreateThread(function()
   while true do
     Citizen.Wait(500)
     if onDuty and not isCarryingPackage and not locationSet then
+      DebugPrint('Picking random location')
       pickRandomLocation()
     end
   end
@@ -431,6 +580,16 @@ end)
 
 Citizen.CreateThread(function()
   while true do 
+    
+    if isInsideEntranceZone then       
+      if IsControlJustReleased(0, 38) then
+        DebugPrint('Pressed E to enter')
+          exports['qb-core']:KeyPressed()
+          Wait(500)
+          EnterWarehouse()
+          exports['qb-core']:HideText()
+      end
+    end
     if onDuty and locationSet and randomLocation ~= nil and not isCarryingPackage then
       DrawMarker(3, randomLocation.location.x, randomLocation.location.y, randomLocation.location.z + 3.0, 
       0, 0, 0, 180.0, 0, 0, 1.25, 1.25, 1.25, 255, 0, 0, 100, false, false, 2, true, nil, nil, false)

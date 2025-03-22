@@ -1,6 +1,10 @@
 ## Dependencies
 Script requires:
 - [Ox Lib] https://github.com/overextended/ox_lib
+-- Ox Lib is used for menus, ped caching and more. 
+
+-[Ox MySql] https://github.com/overextended/oxmysql/releases
+-- Used for database access. 
 
 
 TODO: Add Inventory tracking to allow for players to purchase materials sold by other players
@@ -12,5 +16,6 @@ TODO: Fix model load issue for boxes
 TODO: Update the bag model rotation to properly display in the hand.
 TODO: Add animation and progress bar to Grabbing package and sorting. 
 TODO: Add minigame skill check, make sure is config option
+TODO: Complete QB integration
 
 
