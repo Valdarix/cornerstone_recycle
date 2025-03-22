@@ -477,6 +477,25 @@ local function SetupPed()
         }
       })
     end
+
+    if Config.Target == 'qb' then
+      exports['qb-target']:AddTargetEntity(managerPed, { 
+      options = { 
+        {
+          num = 1, 
+          type = "client",          
+          icon = 'fas fa-comment-dollar', 
+          label = 'Buy/Sell Items',
+          targeticon = 'fas fa-comment-dollar',          
+          action = function()
+            SetupContextMenu()
+          end,
+         
+        }
+      },
+      distance = 1.5, 
+    })
+    end
   end
 end
 
