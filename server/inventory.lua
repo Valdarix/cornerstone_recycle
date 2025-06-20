@@ -17,9 +17,8 @@ function removeItem(src, item, amount)
     plr.removeInventoryItem(item, amount)
   elseif Config.Inventory == 'ps' then
     exports['ps-inventory']:RemoveItem(src, item, amount)
-  else if Config.Inventory == 'qs' then
-    exports['qs-inventory']:RemoveItem(src, item, amount)  
-  end
+  elseif Config.Inventory == 'qs' then
+    exports['qs-inventory']:RemoveItem(src, item, amount)
   end
 end
 exports('removeItem', removeItem)

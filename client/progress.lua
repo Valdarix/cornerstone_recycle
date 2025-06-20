@@ -33,7 +33,7 @@ local function TriggerProgress(duration, label, anim)
           },
           anim = {
             dict = anim[1],
-            cip = anim[2],
+            clip = anim[2],
           }
         })
     then
