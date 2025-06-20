@@ -1,6 +1,4 @@
-if Config.Framework == 'qb' or Config.Framework == 'qbx' then QBCore = exports['qb-core']:GetCoreObject() end
-if Config.Framework == 'esx' then ESX = exports["es_extended"]:getSharedObject() end
-if Config.Framework == 'qbx' then QBX = exports.qbx_core end
+-- Framework functions are provided by the Community Bridge
 
 local recycleCenter = Config.RecycleCenter
 local ped = recycleCenter.Ped
