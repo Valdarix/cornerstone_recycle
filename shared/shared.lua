@@ -23,7 +23,7 @@ function DetectCore()
         elseif GetResourceState('qb-core') == 'started' then
             Config.Framework = 'qb'
         elseif GetResourceState('es_extended') == 'started' then
-            Config.Framework = 'qb'       
+            Config.Framework = 'esx'
         else
             Config.Framework = 'none'
         end

@@ -1,11 +1,11 @@
 if Config.Framework == 'qb'  then QBCore = exports['qb-core']:GetCoreObject() end
-if Config.Framework == 'QBX' then QBX = exports.QBX_core end
+if Config.Framework == 'qbx' then QBX = exports.qbx_core end
 if Config.Framework == 'esx' then ESX = exports["es_extended"]:getSharedObject() end
 
 ---@param src number # player source
 ---@param amount number # amount to take from player
 function takeMoney(src, amount, reason)
-  if Config.Framework == 'QBX' then
+  if Config.Framework == 'qbx' then
     if QBX:GetMoney(src, 'cash') >= amount then
       QBX:RemoveMoney(src, 'cash', amount, reason)
       return true
@@ -45,7 +45,7 @@ exports('takeMoney', takeMoney)
 ---@param account string # bank or cash
 ---@param reason string # reason for change
 function addMoney(src, amount, account, reason)
-  if Config.Framework == 'QBX' then
+  if Config.Framework == 'qbx' then
     QBX:AddMoney(src, account, amount, reason)
   elseif Config.Framework == 'qb' then
     local plr = QBCore.Functions.GetPlayer(src)

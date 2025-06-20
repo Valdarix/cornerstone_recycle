@@ -23,8 +23,7 @@ exports('sendConsoleAlert', sendConsoleAlert)
 ---@param coords vector3 # center of check
 ---@param radius number # radius of check
 local function distanceCheck(playerId, coords, radius)
-  local player = source
-  local ped = GetPlayerPed(player)
+  local ped = GetPlayerPed(playerId)
   local playerCoords = GetEntityCoords(ped)
   local dist = #(playerCoords - coords)
 
