@@ -7,8 +7,9 @@ version '1.0.0'
 
 shared_scripts {
     '@ox_lib/init.lua',
+    '@community_bridge/init.lua',
     'config/*.lua',
-    'shared/*.lua',   
+    'shared/*.lua',
 }
 
 server_scripts {
@@ -24,3 +25,4 @@ client_scripts {
 
 lua54 'yes'
 use_fxv2_oal 'yes'
+dependency 'community_bridge'
