@@ -6,21 +6,21 @@ local rewardItems = Config.RecycleCenter.Rewards
 local onDuty = false
 local dropoffLocation = nil
 
----@param orgin string # orgin where this is being called
----@param playerId number # center of check
----@param faildDist number # how bad they failed the check
-local function sendConsoleAlert(orgin, playerId, faildDist)
+---@param origin string # location where this is being called
+---@param playerId number # player's server id
+---@param failedDist number # distance over the allowed limit
+local function sendConsoleAlert(origin, playerId, failedDist)
   print(
-    '\n^8[CHEATING-ALERT]^7 ' .. orgin .. ' Distance Check Failed!',
+    '\n^8[CHEATING-ALERT]^7 ' .. origin .. ' Distance Check Failed!',
     '\n^8[CHEATING-ALERT]^7 Player Name: ' .. GetPlayerName(playerId),
     '\n^8[CHEATING-ALERT]^7 ' .. GetPlayerIdentifierByType(playerId, 'license'),
-    '\n^8[CHEATING-ALERT]^7 Over Vaild Distance By ' .. faildDist .. ' units!'
+    '\n^8[CHEATING-ALERT]^7 Over Valid Distance By ' .. failedDist .. ' units!'
   )
 end
 exports('sendConsoleAlert', sendConsoleAlert)
 
----@param playerId number # Player Id To Check
----@param coords vector3 # center of check
+---@param playerId number # Player ID to check
+---@param coords vector3 # center coordinates of the check
 ---@param radius number # radius of check
 local function distanceCheck(playerId, coords, radius)
   local ped = GetPlayerPed(playerId)
