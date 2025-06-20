@@ -17,28 +17,12 @@ function DebugPrint(...)
 end
 
 function DetectCore()
-    if Config.Framework == 'auto' then
-        if GetResourceState('qbx_core') == 'started' then
-            Config.Framework = 'qbx'
-        elseif GetResourceState('qb-core') == 'started' then
-            Config.Framework = 'qb'
-        elseif GetResourceState('es_extended') == 'started' then
-            Config.Framework = 'esx'
-        else
-            Config.Framework = 'none'
-        end
-    end
-
-    DebugPrint('Cornerstone Recyling Started with for the : ' .. Config.Framework .. ' framework')
-    DebugPrint('++ Notifications: ' .. Config.Notification)
-    DebugPrint('++ Inventory: ' .. Config.Inventory)
+    DebugPrint('Cornerstone Recycling using Community Bridge auto-detection')
     if Config.UseTarget then
-        DebugPrint('++ Target: ' .. Config.Target)
+        DebugPrint('++ Using target interactions')
     else
-        DebugPrint('++ Target is Disabled')
+        DebugPrint('++ Using interact interactions')
     end
-   
-    DebugPrint('++ Progress: ' .. Config.Progress)
 end
 
 AddEventHandler('onResourceStart', function(resource)

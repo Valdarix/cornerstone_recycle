@@ -2,17 +2,18 @@ Config = {}
 
 Config.Debug = true
 
-Config.Framework = 'auto'          -- auto, qbx , qb, esx,
-Config.Inventory = 'qb'            -- ox , qb, esx, ps, qs
+-- Community Bridge automatically detects frameworks, notifications and
+-- inventories. Only configure target options below if you need to
+-- override the default behaviour.
 
 Config.UseTarget = true           -- setting to false will use interact instead of target
-Config.Target = 'qb'              -- ox , qb
 
-Config.Notification = 'qb'         -- ox , qb, esx, k5, okok, xs
-Config.XSNotifyLocation = 0              -- 0 Middle, 1 Bottom, 2 Left, 3 Right. THIS ONLY MATTERS IF Config.Notification = 'xs'
-
-Config.Progress = 'ox-circle'      -- ox-normal , ox-circle , qb, esx
-Config.OxCirclePosition = 'bottom' -- only matters if Config.Progress = 'ox-circle'
+-- When UseTarget is disabled force the Community Bridge to use the
+-- sleepless_interact module rather than a traditional target system.
+if not Config.UseTarget then
+    BridgeClientConfig = BridgeClientConfig or {}
+    BridgeClientConfig.TargetSystem = 'sleepless_interact'
+end
 
 Config.RecycleCenter = {
     Enter = vec4(-572.05, -1631.29, 19.41, 181.47),
