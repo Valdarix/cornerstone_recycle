@@ -1,3 +1,5 @@
+
+local Bridge = exports.community_bridge:Bridge()
 local rewardItems = Config.RecycleCenter.Rewards.Items
 
 local function getBasePrices(item)
