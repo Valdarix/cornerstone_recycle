@@ -23,9 +23,9 @@ Config.RecycleCenter = {
         location = vec4(994.28, -3106.45, -40.00, 89.45)},       
     Ped = {
         Model = 's_m_m_gentransport',
-        location = vec4(993.86, -3103.04, -39.0, 1.69),
+        location = vec4(992.28, -3097.78, -39.0, 266.4),
     },
-    DutyLocation = vec4(995.18, -3099.99, -38.18, 8.18),    
+    DutyLocation = vec4(995.18, -3099.99, -38.18, 8.18), 
     PickupModels = {
         { name = 'prop_recyclebin_04_b', location = vec4(1006.60, -3097.65, -40.00, 1.38) },
         { name = 'prop_recyclebin_04_b', location = vec4(1005.50, -3097.73, -40.00, 359.93) },
