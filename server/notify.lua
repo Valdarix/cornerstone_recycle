@@ -1,3 +1,4 @@
+local Bridge = exports.community_bridge:Bridge()
 -- Notifications are handled through the Community Bridge
 -- which provides a universal wrapper for multiple
 -- frameworks and notification resources.
@@ -9,6 +10,6 @@
 ---@param type string # success or error
 function doNotifyServer(src, duration, title, desc, type)
   DebugPrint('doNotifyServer via Community Bridge')
-  Notify.SendNotify(src, title .. ' ' .. desc, type, duration)
+  Bridge.Notify.SendNotify(src, title .. ' ' .. desc, type, duration)
 end
 exports('doNotify', doNotify)
