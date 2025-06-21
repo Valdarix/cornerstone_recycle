@@ -23,6 +23,14 @@ client_scripts {
     '@PolyZone/CircleZone.lua'
 }
 
+ui_page 'html/index.html'
+
+files {
+    'html/index.html',
+    'html/style.css',
+    'html/app.js'
+}
+
 lua54 'yes'
 use_fxv2_oal 'yes'
 dependency 'community_bridge'

@@ -186,40 +186,35 @@ local function SetupPickLocations()
   end
 end
 
-local function SetupContextMenu()
-  lib.registerContext({
-    id = 'recycle_manger_menu',
-    title = 'Recycling Shop',
-    options = {
-      {
-        title = 'Sell Materials',
-        description = 'Sell your gathered materials.',
-        icon = 'fas fa-money-bill-wave',
-        onSelect = function()
-          print("Pressed the button!")
-        end,
-        metadata = {
-          { label = 'Value 1', value = 'Some value' },
-          { label = 'Value 2', value = 300 }
-        },
-      },
-      {
-        title = 'Buy Materials',
-        description = 'Buy excess materials',
-        icon = 'fab fa-shopify',
-        onSelect = function()
-          print("Pressed the button!")
-        end,
-        metadata = {
-          { label = 'Value 1', value = 'Some value' },
-          { label = 'Value 2', value = 300 }
-        },
-      },
-    }
-  })
-
-  lib.showContext('recycle_manger_menu')
+-- Custom NUI based shop interface replacing the ox_lib context menu
+local function OpenManagerUI()
+  SetNuiFocus(true, true)
+  SendNUIMessage({ action = 'open' })
+  lib.callback('cornerstone_recycle:server:getMarketData', false, function(data)
+    SendNUIMessage({ action = 'setData', data = data })
+  end)
 end
+
+RegisterNUICallback('close', function(_, cb)
+  SetNuiFocus(false, false)
+  cb('ok')
+end)
+
+RegisterNUICallback('quickSell', function(_, cb)
+  TriggerServerEvent('cornerstone_recycle:server:quickSell')
+  cb('ok')
+end)
+
+RegisterNUICallback('buyItem', function(data, cb)
+  TriggerServerEvent('cornerstone_recycle:server:buyItem', data.item, data.amount)
+  cb('ok')
+end)
+
+RegisterNetEvent('cornerstone_recycle:client:refreshMarket', function()
+  lib.callback('cornerstone_recycle:server:getMarketData', false, function(data)
+    SendNUIMessage({ action = 'setData', data = data })
+  end)
+end)
 
 AddEventHandler('onResourceStop', function(resourceName)
   if (GetCurrentResourceName() ~= resourceName) then return end
@@ -330,7 +325,7 @@ local function SetupPed()
       icon = 'fas fa-comment-dollar',
       label = 'Buy/Sell Items',
       onSelect = function()
-        SetupContextMenu()
+        OpenManagerUI()
       end,
     }
   })
