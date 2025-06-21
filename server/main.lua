@@ -1,8 +1,8 @@
 -- Framework functions are available via the Community Bridge
 local Bridge = exports.community_bridge:Bridge()
 local rewardItems = Config.RecycleCenter.Rewards
-local onDuty = false
-local dropoffLocation = nil
+local dutyStates = {}
+local dropoffLocations = {}
 
 -- Initialize the market database when oxmysql is ready
 MySQL.ready(function()
@@ -40,21 +40,23 @@ exports('distanceCheck', distanceCheck)
 
 
 lib.callback.register('cornerstone_recycle:server:getDutyState', function(source)
-  return onDuty
+  return dutyStates[source] or false
 end)
 
 RegisterNetEvent('cornerstone_recycle:server:toggleDuty', function (dutyState)
   if dutyState then
-    onDuty = true
-    DebugPrint('Player is now on duty')
+    dutyStates[source] = true
+    DebugPrint(('Player %s is now on duty'):format(source))
   else
-    onDuty = false
-    DebugPrint('Player is now off duty')
+    dutyStates[source] = false
+    dropoffLocations[source] = nil
+    DebugPrint(('Player %s is now off duty'):format(source))
   end
 end)
 
 RegisterNetEvent('cornerstone_recycle:server:processDropoff', function()
-  if not onDuty then return end
+  if not dutyStates[source] then return end
+  local dropoffLocation = dropoffLocations[source]
   if not dropoffLocation then return end
   
   local canProcess = distanceCheck(source, dropoffLocation, 5.0)
@@ -76,8 +78,8 @@ RegisterNetEvent('cornerstone_recycle:server:processDropoff', function()
   
 end)
 
-RegisterNetEvent('cornerstone_recycle:server:registerPickupLocation', function(location)
-  dropoffLocation = location
+RegisterNetEvent('cornerstone_recycle:server:registerDropoffLocation', function(location)
+  dropoffLocations[source] = location
 
 end)
 
@@ -103,4 +105,9 @@ AddEventHandler('onResourceStop', function(resourceName)
   if (GetCurrentResourceName() ~= resourceName) then return end
 
   -- code here
+end)
+
+AddEventHandler('playerDropped', function()
+  dutyStates[source] = nil
+  dropoffLocations[source] = nil
 end)
