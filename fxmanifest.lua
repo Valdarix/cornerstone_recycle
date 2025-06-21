@@ -5,22 +5,24 @@ author 'Cornerstone Scripts'
 description 'Cornerstreone Scripts Recycling Script'
 version '1.0.0'
 
-shared_scripts {
+shared_scripts {  
     '@ox_lib/init.lua',
-    '@community_bridge/init.lua',
     'config/*.lua',
     'shared/*.lua',
 }
 
 server_scripts {
+    '@oxmysql/lib/MySQL.lua',   
     'server/*.lua'
 }
 
 client_scripts {
-    'client/*.lua',
-    '@PolyZone/client.lua',
-    '@PolyZone/BoxZone.lua',
-    '@PolyZone/CircleZone.lua'
+    'client/*.lua',  
+}
+
+dependencies {
+    'ox_lib',
+    'community_bridge',
 }
 
 ui_page 'html/index.html'
