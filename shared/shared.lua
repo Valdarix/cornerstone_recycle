@@ -1,3 +1,4 @@
+local Bridge = exports.community_bridge:Bridge()
 Config = Config or {}
 
 function LoadModel(model)
