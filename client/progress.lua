@@ -1,3 +1,4 @@
+local Bridge = exports.community_bridge:Bridge()
 ---@param duration number # length of progress
 ---@param label string # progress text
 ---@param anim? table # {dict, clip}
@@ -13,6 +14,6 @@ local function TriggerProgress(duration, label, anim)
     }
   }
 
-  return ProgressBar.Open(options)
+  return Bridge.ProgressBar.Open(options)
 end
 exports('TriggerProgress', TriggerProgress)
