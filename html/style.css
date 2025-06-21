@@ -1,33 +1,48 @@
 body {
-  font-family: Arial, sans-serif;
+  font-family: 'Roboto', Arial, sans-serif;
   background: #1e1e1e;
   color: #fff;
 }
+
 #app {
   width: 80%;
   margin: 20px auto;
   background: #2b2b2b;
   padding: 20px;
   border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.6);
 }
+
 table {
   width: 100%;
   border-collapse: collapse;
 }
+
 th, td {
   padding: 8px;
   border-bottom: 1px solid #444;
   text-align: center;
 }
+
+th {
+  background: #333;
+}
+
 button {
-  margin-top: 10px;
-  padding: 10px 20px;
+  margin-top: 4px;
+  padding: 6px 14px;
   background: #4CAF50;
   color: #fff;
   border: none;
   border-radius: 4px;
   cursor: pointer;
 }
+
+button[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 button#close {
   background: #c0392b;
   float: right;
