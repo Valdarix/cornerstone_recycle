@@ -48,6 +48,7 @@ local function updateMarket(item, supplyChange, demandChange)
     row = MySQL.single.await('SELECT * FROM recycle_market WHERE item = ?', { item })
   end
   local supply = row.supply + (supplyChange or 0)
+  if supply < 0 then supply = 0 end
   local demand = row.demand + (demandChange or 0)
   local buy, sell = recalcPrices(item, supply, demand)
   MySQL.update.await('UPDATE recycle_market SET supply = ?, demand = ?, buy_price = ?, sell_price = ? WHERE item = ?', {
@@ -91,17 +92,43 @@ end
 
 function BuyItem(src, item, amount)
   amount = tonumber(amount) or 1
-  local row = MySQL.single.await('SELECT sell_price FROM recycle_market WHERE item = ?', { item })
-  local price = row and row.sell_price
-  if not price then return end
+  local row = MySQL.single.await('SELECT sell_price, supply FROM recycle_market WHERE item = ?', { item })
+  if not row then return end
+  local price = row.sell_price
+  local stock = row.supply
+  if stock < amount then
+    doNotifyServer(src, 5000, 'Recycle', 'Not enough inventory available', 'error')
+    return
+  end
+
   local cost = price * amount
   local ok = takeMoney(src, cost, 'recycle-purchase')
   if not ok then
     doNotifyServer(src, 5000, 'Recycle', 'Not enough money', 'error')
     return
   end
+
   addItem(src, item, amount)
-  updateMarket(item, 0, amount)
+  updateMarket(item, -amount, amount)
   doNotifyServer(src, 5000, 'Recycle', ('Purchased %sx %s'):format(amount, item), 'success')
+  TriggerClientEvent('cornerstone_recycle:client:refreshMarket', src)
+end
+
+function SellItem(src, item, amount)
+  amount = tonumber(amount) or 1
+  local invCount = Inventory.GetItemCount(src, item)
+  if invCount < amount then
+    doNotifyServer(src, 5000, 'Recycle', 'Not enough items to sell', 'error')
+    return
+  end
+
+  local row = MySQL.single.await('SELECT buy_price FROM recycle_market WHERE item = ?', { item })
+  if not row then return end
+  local price = row.buy_price
+
+  removeItem(src, item, amount)
+  addMoney(src, price * amount, 'cash', 'recycle-sale')
+  updateMarket(item, amount, 0)
+  doNotifyServer(src, 5000, 'Recycle', ('Sold %sx %s'):format(amount, item), 'success')
   TriggerClientEvent('cornerstone_recycle:client:refreshMarket', src)
 end

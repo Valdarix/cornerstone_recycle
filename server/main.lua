@@ -95,6 +95,10 @@ RegisterNetEvent('cornerstone_recycle:server:buyItem', function(item, amount)
   BuyItem(source, item, amount)
 end)
 
+RegisterNetEvent('cornerstone_recycle:server:sellItem', function(item, amount)
+  SellItem(source, item, amount)
+end)
+
 AddEventHandler('onResourceStart', function(resourceName)
   if (GetCurrentResourceName() ~= resourceName) then return end
 

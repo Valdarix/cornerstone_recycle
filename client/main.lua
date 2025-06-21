@@ -248,6 +248,11 @@ RegisterNUICallback('buyItem', function(data, cb)
   cb('ok')
 end)
 
+RegisterNUICallback('sellItem', function(data, cb)
+  TriggerServerEvent('cornerstone_recycle:server:sellItem', data.item, data.amount)
+  cb('ok')
+end)
+
 RegisterNetEvent('cornerstone_recycle:client:refreshMarket', function()
   lib.callback('cornerstone_recycle:server:getMarketData', false, function(data)
     SendNUIMessage({ action = 'setData', data = data })
