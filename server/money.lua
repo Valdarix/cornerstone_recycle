@@ -1,9 +1,9 @@
 -- Money handling via Community Bridge
-
+local Bridge = exports.community_bridge:Bridge()
 ---@param src number # player source
 ---@param amount number # amount to take from player
 function takeMoney(src, amount, reason)
-  return Framework.RemoveAccountBalance(src, 'cash', amount)
+  return Bridge.Framework.RemoveAccountBalance(src, 'cash', amount)
 end
 exports('takeMoney', takeMoney)
 
@@ -12,6 +12,6 @@ exports('takeMoney', takeMoney)
 ---@param account string # bank or cash
 ---@param reason string # reason for change
 function addMoney(src, amount, account, reason)
-  Framework.AddAccountBalance(src, account or 'cash', amount)
+  Bridge.Framework.AddAccountBalance(src, account or 'cash', amount)
 end
 exports('addMoney', addMoney)
