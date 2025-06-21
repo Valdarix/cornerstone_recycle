@@ -1,5 +1,5 @@
 -- Framework functions are available via the Community Bridge
-
+local Bridge = exports.community_bridge:Bridge()
 local rewardItems = Config.RecycleCenter.Rewards
 local onDuty = false
 local dropoffLocation = nil
