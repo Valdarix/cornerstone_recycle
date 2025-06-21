@@ -4,6 +4,11 @@ local rewardItems = Config.RecycleCenter.Rewards
 local onDuty = false
 local dropoffLocation = nil
 
+-- Initialize the market database when oxmysql is ready
+MySQL.ready(function()
+  InitMarket()
+end)
+
 ---@param origin string # location where this is being called
 ---@param playerId number # player's server id
 ---@param failedDist number # distance over the allowed limit
@@ -73,7 +78,19 @@ end)
 
 RegisterNetEvent('cornerstone_recycle:server:registerPickupLocation', function(location)
   dropoffLocation = location
-    
+
+end)
+
+lib.callback.register('cornerstone_recycle:server:getMarketData', function(src)
+  return GetMarketData()
+end)
+
+RegisterNetEvent('cornerstone_recycle:server:quickSell', function()
+  QuickSell(source)
+end)
+
+RegisterNetEvent('cornerstone_recycle:server:buyItem', function(item, amount)
+  BuyItem(source, item, amount)
 end)
 
 AddEventHandler('onResourceStart', function(resourceName)
