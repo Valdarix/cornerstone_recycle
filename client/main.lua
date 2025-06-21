@@ -16,7 +16,8 @@ local currentPackage = 0
 
 local locationSet = false
 local randomLocation = nil
-local pickupId = 'pikcupLocation'
+local pickupIdBase = 'pickupLocation'
+local pickupId = pickupIdBase
 
 
 
@@ -47,6 +48,7 @@ local function CleanUpWarehouse()
       end
     end
   end
+  pickupId = pickupIdBase
   DebugPrint('Cleaned up warehouse')
 end
 
@@ -161,11 +163,11 @@ end
 
 local function pickRandomLocation()
   randomLocation = pickLocations[math.random(#pickLocations)]
-  pickupId = pickupId ..
-  randomLocation.name .. randomLocation.location.x .. randomLocation.location.y .. randomLocation.location.z
+  pickupId = pickupIdBase ..
+    randomLocation.name .. randomLocation.location.x .. randomLocation.location.y .. randomLocation.location.z
   -- convert randomLocation.location to vector3 so it can be passed to server
   local newLocation = vector3(recycleCenter.DropOff.location.x, recycleCenter.DropOff.location.y, recycleCenter.DropOff.location.z)
-  TriggerServerEvent('cornerstone_recycle:server:registerPickupLocation', newLocation)
+  TriggerServerEvent('cornerstone_recycle:server:registerDropoffLocation', newLocation)
   DebugPrint('Picking up location: ' .. pickupId)
   Bridge.Target.AddBoxZone(pickupId,
     vector3(randomLocation.location.x, randomLocation.location.y, randomLocation.location.z + 0.5),
@@ -296,6 +298,7 @@ local function ToggleDuty()
     isCarryingPackage = false
     currentPackage = 0
     Bridge.Target.RemoveZone(pickupId)
+    pickupId = pickupIdBase
 
     TriggerServerEvent('cornerstone_recycle:server:toggleDuty', false)
     doNotifyClient(5000, 'Recycle Center', 'You are now off duty', 'error')
