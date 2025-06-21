@@ -1,5 +1,5 @@
 -- Framework functions are provided by the Community Bridge
-
+local Bridge = exports.community_bridge:Bridge()
 local recycleCenter = Config.RecycleCenter
 local ped = recycleCenter.Ped
 local pickLocations = recycleCenter.PickupModels
@@ -22,11 +22,12 @@ local pickupId = 'pikcupLocation'
 
 local function CleanUpWarehouse()
   -- Cleanup
-  Target.RemoveZone('recycle_center_exit')
-  Target.RemoveZone('recycle_center_laptop')
-  Target.RemoveZone('recycle_center_managerPed')
-  Target.RemoveLocalEntity(dropOffObj, 'Sort Recycling')
-  Target.RemoveLocalEntity(managerPed)
+  Bridge.Target.RemoveZone('recycle_center_enter')
+  Bridge.Target.RemoveZone('recycle_center_exit')
+  Bridge.Target.RemoveZone('recycle_center_laptop')
+  Bridge.Target.RemoveZone('recycle_center_managerPed')
+  Bridge.Target.RemoveLocalEntity(dropOffObj, 'Sort Recycling')
+  Bridge.Target.RemoveLocalEntity(managerPed)
 
   if managerPed ~= nil and DoesEntityExist(managerPed) then
     DeleteEntity(managerPed)
@@ -72,7 +73,7 @@ local function ProcessDropoff()
 end
 
 local function setupDropoffTarget()
-  Target.AddLocalEntity(dropOffObj, {
+  Bridge.Target.AddLocalEntity(dropOffObj, {
     {
       distance = 1.5,
       name = 'recycle_center_dropoff',
@@ -81,7 +82,24 @@ local function setupDropoffTarget()
       onSelect = function()
         if isCarryingPackage then
           if currentPackage ~= nil then
-            ProcessDropoff()
+              if lib.progressBar({
+                duration = 3000,
+                label = 'Sorting Recycling',
+                useWhileDead = false,
+                canCancel = true,
+                disable = {
+                  car = true, move = true,
+                },
+                anim = {
+                  dict = 'mini@repair', clip = 'fixing_a_ped'
+                },
+              
+            }) then
+               ProcessDropoff()
+            else 
+              doNotifyClient(5000, 'Recycle Center', 'You cancelled the action!', 'error')
+            end     
+                 
           end
         else
           doNotifyClient(5000, 'Recycle Center', 'You do not have anything to sort!', 'error')
@@ -116,28 +134,29 @@ local function GrabPackage(type, location)
   local rotX, rotY, rotZ = 0, 0, 0
   currentPackage = 0
   local boneIndex = GetPedBoneIndex(cache.ped, 57005)
-  if type == 'prop_recyclebin_04_b' then    
+   if type == 'prop_recyclebin_04_b' then    
     LoadModel(bagModel)
     currentPackage = CreateObject(bagModel, location.x, location.y, location.z, false, true, true)
-    offsetX, offsetY, offsetZ = 0.0, 0.0, 0.0
-    rotX, rotY, rotZ = 0, 0, 0  
-    animDict = 'anim@heists@narcotics@trash'
+    offsetX, offsetY, offsetZ = 0.17, -0.46, 0.0
+    rotX, rotY, rotZ = -80.7, -0.15, 0.0 
+    animDict = 'anim@heists@narcotics@trash' 
     animName = 'idle'
-  elseif type == 'prop_boxpile_06b' or type == 'prop_boxpile_01a' or type == 'prop_boxpile_04a' then
+  else
     LoadModel(boxModel)
     currentPackage = CreateObject(boxModel, location.x, location.y, location.z, false, true, true)
-    offsetX, offsetY, offsetZ = 0.30, -0.07, -0.20
-    rotX, rotY, rotZ = -120, 75, -10     
+    offsetX, offsetY, offsetZ = 0.05, 0.1, -0.3
+    rotX, rotY, rotZ = 300.0, 250.0, 20.0    
     animDict = 'anim@heists@box_carry@'
     animName = 'idle'
   end
   lib.requestAnimDict(animDict)
 
+  Bridge.Target.RemoveZone(pickupId)
+
   TaskPlayAnim(PlayerPedId(), animDict, animName, 8.0, -8.0, -1, 49, 0, false, false, false)
-  AttachEntityToEntity(currentPackage, cache.ped, boneIndex, offsetX, offsetY, offsetZ, rotX, rotY, rotZ, true, true,
-    false, true, 1, true)
-    setupDropoffTarget()
-   
+  AttachEntityToEntity(currentPackage, cache.ped, boneIndex, offsetX, offsetY, offsetZ, rotX, rotY, rotZ, true, true, false, true, 1, true)
+  setupDropoffTarget()
+  
 end
 
 local function pickRandomLocation()
@@ -148,20 +167,37 @@ local function pickRandomLocation()
   local newLocation = vector3(recycleCenter.DropOff.location.x, recycleCenter.DropOff.location.y, recycleCenter.DropOff.location.z)
   TriggerServerEvent('cornerstone_recycle:server:registerPickupLocation', newLocation)
   DebugPrint('Picking up location: ' .. pickupId)
-  Target.AddBoxZone(pickupId,
+  Bridge.Target.AddBoxZone(pickupId,
     vector3(randomLocation.location.x, randomLocation.location.y, randomLocation.location.z + 0.5),
     { x = 5.0, y = 5.0, z = 2.0 },
     randomLocation.location.w,
     {
       {
+        name = pickupId,
         icon = 'fas fa-hand',
         label = 'Pickup Recycling',
         onSelect = function()
           if not isCarryingPackage then
             isCarryingPackage = true
-            doNotifyClient(5000, 'Recycle Center', 'You have picked up a load!', 'success')
-            GrabPackage(randomLocation.name, randomLocation.location)
-            Target.RemoveZone(pickupId)
+              if lib.progressBar({
+                duration = 3000,
+                label = 'Grabbing Recycling',
+                useWhileDead = false,
+                canCancel = true,
+                disable = {
+                  car = true, move = true,
+                },
+                anim = {
+                  dict = 'mini@repair', clip = 'fixing_a_ped'
+                },
+              
+            }) then
+              GrabPackage(randomLocation.name, randomLocation.location)
+            else 
+              doNotifyClient(5000, 'Recycle Center', 'You cancelled the action!', 'error')
+            end     
+            
+          Bridge.Target.RemoveZone(pickupId)
           else
             doNotifyClient(5000, 'Recycle Center', 'You are already carrying a load!', 'error')
           end
@@ -259,7 +295,7 @@ local function ToggleDuty()
     locationSet = false
     isCarryingPackage = false
     currentPackage = 0
-    Target.RemoveZone(pickupId)
+    Bridge.Target.RemoveZone(pickupId)
 
     TriggerServerEvent('cornerstone_recycle:server:toggleDuty', false)
     doNotifyClient(5000, 'Recycle Center', 'You are now off duty', 'error')
@@ -271,9 +307,9 @@ local function ToggleDuty()
 end
 
 local function SetupLaptop()
-  Target.AddBoxZone('recycle_center_laptop',
+  Bridge.Target.AddBoxZone('recycle_center_laptop',
     vector3(recycleCenter.DutyLocation.x, recycleCenter.DutyLocation.y, recycleCenter.DutyLocation.z),
-    { x = 1.0, y = 1.0, z = 1.0 },
+    { x = 1.0, y = 1.0, z = 2.0 },
     recycleCenter.DutyLocation.w,
     {
       {
@@ -290,7 +326,7 @@ local function SetupLaptop()
 end
 
 local function SetupInterior()
-  Target.AddBoxZone('recycle_center_exit',
+  Bridge.Target.AddBoxZone('recycle_center_exit',
     recycleCenter.Exit.xyz,
     { x = 5.0, y = 2.0, z = 2.0 },
     recycleCenter.Exit.w,
@@ -318,7 +354,8 @@ local function SetupPed()
   FreezeEntityPosition(managerPed, true)
   SetEntityInvincible(managerPed, true)
   SetEntityHeading(managerPed, ped.location.w)
-  Target.AddLocalEntity(managerPed, {
+  TaskStartScenarioInPlace(managerPed, 'WORLD_HUMAN_CLIPBOARD', 0, true)  
+  Bridge.Target.AddLocalEntity(managerPed, {
     {
       distance = 1.5,
       name = 'recycle_center_managerPed',
@@ -351,12 +388,13 @@ local function EnterWarehouse()
 end
 
 local function SetupRecycleCenter()
-  Target.AddBoxZone('recycle_center_enter',
+  Bridge.Target.AddBoxZone('recycle_center_enter',
     recycleCenter.Enter.xyz,
     { x = 5.0, y = 2.0, z = 5.0 },
     recycleCenter.Enter.w,
     {
       {
+        name = 'recycle_center_enter',
         icon = 'fas fa-recycle',
         label = 'Enter Recycle Center',
         onSelect = function()
